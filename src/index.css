@@ -1,13 +1,61 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+:root {
+  /* --- LIGHT MODE (Default) --- */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f7; /* Apple-style light gray */
+  --bg-card: #ffffff;
+  --text-primary: #1d1d1f; /* Soft black, not pure black */
+  --text-secondary: #86868b;
+  --accent: #007aff; /* Apple Blue */
+  --border: #d2d2d7;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+[data-theme='dark'] {
+  /* --- DARK MODE --- */
+  --bg-primary: #000000;
+  --bg-secondary: #1c1c1e;
+  --bg-card: #1c1c1e;
+  --text-primary: #f5f5f7;
+  --text-secondary: #86868b;
+  --accent: #0a84ff; /* Slightly lighter blue for dark mode */
+  --border: #424245;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased; /* Makes fonts look crisp like Mac */
+}
+
+/* --- UTILITY CLASSES --- */
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+.btn-primary {
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+h1, h2, h3 {
+  font-weight: 600;
+  letter-spacing: -0.02em; /* Tight tracking for that modern look */
 }

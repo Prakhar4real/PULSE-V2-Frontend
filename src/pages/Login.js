@@ -1,6 +1,5 @@
-// src/pages/Login.js
 import React, { useState } from 'react';
-import api from '../services/api'; // Import the helper we just made
+import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
@@ -10,54 +9,75 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     try {
-      // 1. Send the username/password to Django
       const response = await api.post('token/', {
         username: username,
         password: password
       });
 
-      // 2. If it works, Django sends back a "Key" (Token)
-      // We save this key in the browser's memory
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
-
-      alert("ACCESS GRANTED. Welcome to PULSE.");
       
-      // 3. Redirect to the home page
       navigate('/');
-
     } catch (error) {
       console.error("Login error", error);
-      alert("ACCESS DENIED: Wrong username or password.");
+      alert("Invalid Credentials");
     }
   };
 
   return (
-    <div style={{ padding: '50px', backgroundColor: '#1a1a1a', color: '#00ffcc', height: '100vh' }}>
-      <h2>>> SYSTEM LOGIN</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username: </label>
-          <input 
-            type="text" 
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: 'var(--bg-secondary)' }}>
+      <div className="card" style={{ width: '350px' }}>
+        
+        {/* Title */}
+        <h2 style={{ textAlign: 'center', marginBottom: '20px', color: 'var(--text-primary)' }}>Welcome Back</h2>
+        
+        {/* Login Form */}
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Username</label>
+            <input 
+              type="text" 
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', boxSizing: 'border-box' }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '25px' }}>
+            <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Password</label>
+            <input 
+              type="password" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', boxSizing: 'border-box' }}
+            />
+          </div>
+
+          <button type="submit" className="btn-primary" style={{ width: '100%', padding: '12px', fontSize: '1rem' }}>
+            Log In
+          </button>
+        </form>
+
+        {/* --- THE LINK IS HERE --- */}
+        <div style={{ marginTop: '25px', textAlign: 'center', paddingTop: '20px', borderTop: '1px solid var(--border)' }}>
+          <p style={{ color: 'var(--text-secondary)', margin: '0 0 10px 0' }}>New to PULSE?</p>
+          <button 
+            onClick={() => navigate('/register')} 
+            style={{ 
+                background: 'none', 
+                border: 'none', 
+                color: 'var(--accent)', 
+                cursor: 'pointer', 
+                fontWeight: '600', 
+                fontSize: '1rem' 
+            }}
+          >
+            Create an Account &rarr;
+          </button>
         </div>
-        <br />
-        <div>
-          <label>Password: </label>
-          <input 
-            type="password" 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <br />
-        <button type="submit">INITIATE SESSION</button>
-      </form>
+
+      </div>
     </div>
   );
 };

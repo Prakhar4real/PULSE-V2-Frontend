@@ -1,35 +1,88 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import MapView from '../components/MapView'; // Make sure this import exists!
 
 const Dashboard = () => {
+  const [reports, setReports] = useState([]);
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    // 1. Destroy the "Key" (Delete from storage)
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-
-    // 2. Redirect back to Login
-    navigate('/login');
-  };
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const response = await api.get('reports/');
+        setReports(response.data);
+      } catch (error) {
+        console.error("Error fetching reports:", error);
+      }
+    };
+    fetchReports();
+  }, []);
 
   return (
-    <div style={{ padding: '50px', backgroundColor: '#0a0a0a', color: '#00ffcc', height: '100vh' }}>
-      <h1>>> COMMAND CENTER</h1>
-      <p>STATUS: ONLINE</p>
-      <p>USER: ADMINISTRATOR</p>
+    <div style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto', minHeight: '100vh' }}>
       
-      <div style={{ marginTop: '50px', border: '1px solid #333', padding: '20px' }}>
-        <h3>CITY METRICS</h3>
-        <p>No reports loaded yet...</p>
+      {/* HEADER */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+        <div>
+          <h1 style={{ fontSize: '2.5rem', marginBottom: '10px' }}>Command Center</h1>
+          <p style={{ color: 'var(--text-secondary)' }}>System Status: Online • {reports.length} Active Reports</p>
+        </div>
+        <div>
+          <button 
+            className="btn-primary"
+            onClick={() => navigate('/new-report')}
+          >
+            + New Incident
+          </button>
+        </div>
       </div>
 
-      <button 
-        onClick={handleLogout}
-        style={{ marginTop: '30px', padding: '10px 20px', backgroundColor: 'red', color: 'white', border: 'none', cursor: 'pointer' }}
-      >
-        TERMINATE SESSION (LOGOUT)
-      </button>
+      {/* MAP */}
+      <h3 style={{ marginBottom: '20px' }}>Live Feed</h3>
+      <MapView reports={reports} />
+      
+      {/* REPORTS GRID */}
+      <h3 style={{ marginTop: '50px', marginBottom: '20px' }}>Recent Activity</h3>
+      
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
+        {reports.length === 0 ? (
+          <p style={{ color: 'var(--text-secondary)' }}>No active reports.</p>
+        ) : (
+          reports.map((report) => (
+            <div key={report.id} className="card">
+              
+              {report.image && (
+                <img 
+                  src={report.image} 
+                  alt="Evidence" 
+                  style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '8px', marginBottom: '15px' }} 
+                />
+              )}
+
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '1.1rem' }}>{report.title}</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '10px' }}>📍 {report.city}</p>
+              <p style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: '1.5' }}>{report.description}</p>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px', paddingTop: '15px', borderTop: '1px solid var(--border)' }}>
+                <span style={{ 
+                    padding: '4px 10px', 
+                    borderRadius: '20px', 
+                    fontSize: '0.8rem', 
+                    fontWeight: '600',
+                    backgroundColor: report.status === 'SOLVED' ? '#e6f4ea' : '#fff4e5',
+                    color: report.status === 'SOLVED' ? '#137333' : '#b06000'
+                }}>
+                  {report.status}
+                </span>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+                  By: {report.username}
+                </span>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 };
