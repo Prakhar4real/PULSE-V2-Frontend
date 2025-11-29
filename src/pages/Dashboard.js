@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
-import MapView from '../components/MapView'; // Make sure this import exists!
+import MapView from '../components/MapView'; 
+import WeatherWidget from '../components/WeatherWidget'; // Weather api
 
 const Dashboard = () => {
   const [reports, setReports] = useState([]);
@@ -37,6 +38,10 @@ const Dashboard = () => {
           </button>
         </div>
       </div>
+
+      {/* --- WEATHER WIDGET GOES HERE --- */}
+      <WeatherWidget /> 
+      {/* -------------------------------- */}
 
       {/* MAP */}
       <h3 style={{ marginBottom: '20px' }}>Live Feed</h3>

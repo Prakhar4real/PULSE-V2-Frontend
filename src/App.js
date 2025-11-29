@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext'; 
 import Navbar from './components/Navbar'; 
+import ChatWidget from './components/ChatWidget';
 
 // Pages
 import Login from './pages/Login';
@@ -25,6 +26,8 @@ function App() {
             <Route path="/new-report" element={<CreateReport />} />
           </Routes>
         </div>
+        
+        <ChatWidget />
       </Router>
     </ThemeProvider>
   );
