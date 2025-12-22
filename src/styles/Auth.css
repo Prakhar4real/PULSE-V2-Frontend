@@ -1,0 +1,89 @@
+/* src/styles/Auth.css */
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); /* Deep Blue Theme */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.auth-card {
+  background: rgba(255, 255, 255, 0.1); /* Glass Effect */
+  backdrop-filter: blur(10px);
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  width: 100%;
+  max-width: 350px;
+  text-align: center;
+  color: white;
+}
+
+.auth-subtitle {
+  color: #ddd;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.auth-input {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 15px;
+  color: white;
+  font-size: 1rem;
+  outline: none;
+  transition: 0.3s;
+}
+
+.auth-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.auth-input:focus {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.auth-button {
+  background: #00c6ff; /* Neon Blue Button */
+  background: linear-gradient(to right, #00c6ff, #0072ff);
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+  margin-top: 10px;
+}
+
+.auth-button:hover {
+  transform: scale(1.05);
+}
+
+.auth-footer {
+  margin-top: 20px;
+  font-size: 0.85rem;
+}
+
+.auth-footer a {
+  color: #00c6ff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.phone-input-group {
+    display: flex;
+    flex-direction: column;
+}
