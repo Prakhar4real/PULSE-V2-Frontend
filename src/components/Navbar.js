@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; 
 import api from '../services/api';
 
 const Navbar = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
 
-    // Check login status every time the Navbar loads
+    
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                // Check if we have a token first
+                
                 const token = localStorage.getItem('access');
                 if (token) {
                     const res = await api.get('user/profile/');
@@ -27,7 +27,7 @@ const Navbar = () => {
     const handleLogout = () => {
         localStorage.removeItem('access');
         localStorage.removeItem('refresh');
-        window.location.href = '/login'; // Hard refresh to clear state
+        window.location.href = '/login';
     };
 
     return (
@@ -39,7 +39,11 @@ const Navbar = () => {
             <div style={styles.links}>
                 {user ? (
                     <>
+                        
+                        <button onClick={() => navigate('/notices')} style={styles.linkBtn}>Community</button>
+                        
                         <button onClick={() => navigate('/missions')} style={styles.linkBtn}>Missions</button>
+                        
                         <div style={styles.badge}>
                             🏆 {user.username} | {user.points} XP
                         </div>
@@ -62,7 +66,7 @@ const styles = {
     dot: { color: '#007bff', fontSize: '1.2rem' },
     links: { display: 'flex', alignItems: 'center', gap: '20px' },
     link: { color: '#ccc', textDecoration: 'none', fontSize: '1rem', fontWeight: '500' },
-    linkBtn: { background: 'none', border: 'none', color: '#ccc', cursor: 'pointer', fontSize: '1rem' },
+    linkBtn: { background: 'none', border: 'none', color: '#ccc', cursor: 'pointer', fontSize: '1rem', fontWeight: '500' }, // Added fontWeight for better look
     signupBtn: { padding: '8px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' },
     badge: { padding: '8px 15px', backgroundColor: '#1e1e1e', borderRadius: '20px', border: '1px solid #333', color: '#FFD700', fontWeight: 'bold' },
     logoutBtn: { padding: '8px 15px', backgroundColor: '#333', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }

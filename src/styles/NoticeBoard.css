@@ -1,0 +1,89 @@
+.notice-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.notice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.create-notice-form {
+    background: #2a2a2a;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    border: 1px solid #444;
+}
+
+.create-notice-form input, 
+.create-notice-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background: #1a1a1a;
+    border: 1px solid #555;
+    color: white;
+    border-radius: 5px;
+}
+
+.pin-checkbox {
+    margin-bottom: 10px;
+    color: #ccc;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.post-btn {
+    background: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.notice-card {
+    background: #1e1e1e;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-left: 5px solid #444;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+/* Special Style for Pinned Notices */
+.notice-card.pinned {
+    border-left: 5px solid #ffcc00; /* Gold border */
+    background: #252520;
+}
+
+.pin-icon {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 20px;
+}
+
+.notice-title {
+    margin: 0 0 10px 0;
+    color: #fff;
+}
+
+.notice-meta {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.notice-content {
+    color: #ddd;
+    line-height: 1.5;
+}

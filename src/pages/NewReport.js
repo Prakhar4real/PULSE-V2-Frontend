@@ -13,7 +13,7 @@ const NewReport = () => {
         image: null
     });
 
-    // Auto-fetch location when page loads (optional, can remove if you only want button)
+    // Auto-fetch location when page loads
     useEffect(() => {
         getLocation();
     }, []);

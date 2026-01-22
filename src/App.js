@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext'; 
+import NoticeBoard from './pages/NoticeBoard';
 
 // Components
 import Navbar from './components/Navbar'; 
@@ -29,6 +30,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/notices" element={<NoticeBoard />} />
             
             
             <Route path="/new-report" element={<NewReport />} /> 
