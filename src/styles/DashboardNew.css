@@ -1,0 +1,203 @@
+
+:root {
+  --bg-dark: #0b0c15;
+  --card-bg: #151621;
+  --text-primary: #ffffff;
+  --text-secondary: #8b8d9d;
+  --accent-blue: #2970ff;
+  --accent-green: #00d68f;
+  --accent-yellow: #ffb547;
+  --accent-red: #ff3b3b;
+  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body {
+  background-color: var(--bg-dark);
+  font-family: 'Inter', sans-serif;
+  color: var(--text-primary);
+}
+
+/* --- MAIN GRID LAYOUT --- */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 350px; /* Main Content | Sidebar */
+  gap: 20px;
+  padding: 20px;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* --- LEFT SECTION (Map + Reports) --- */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+}
+
+.map-section {
+  flex: 2;
+  background: var(--card-bg);
+  border-radius: 20px;
+  border: var(--glass-border);
+  position: relative;
+  overflow: hidden;
+}
+
+.reports-section {
+  flex: 1;
+  display: flex;
+  gap: 15px;
+  overflow-x: auto; /* Horizontal Scroll */
+  padding-bottom: 10px;
+}
+
+/* --- REPORT CARDS --- */
+.report-card-modern {
+  min-width: 250px;
+  background: var(--card-bg);
+  border-radius: 15px;
+  border: var(--glass-border);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.report-img-modern {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.status-tag {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #000;
+}
+
+/* --- RIGHT SIDEBAR --- */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  overflow-y: auto;
+}
+
+.sidebar-card {
+  background: var(--card-bg);
+  border: var(--glass-border);
+  border-radius: 15px;
+  padding: 15px;
+}
+
+/* --- PROFILE CARD --- */
+.profile-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #333;
+}
+
+.view-profile-btn {
+  width: 100%;
+  margin-top: 10px;
+  background: #2970ff;
+  border: none;
+  color: white;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* --- AQI GAUGE --- */
+.aqi-container {
+  text-align: center;
+  position: relative;
+}
+
+.aqi-value {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.aqi-label {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+/* --- LEADERBOARD --- */
+.leader-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.leader-rank { color: var(--accent-yellow); font-weight: bold; margin-right: 10px;}
+.leader-xp { color: var(--accent-blue); font-weight: bold; font-size: 0.9rem;}
+
+/* --- SCROLLBAR --- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+/* PROFESSIONAL MAP MARKER */
+.pro-pin-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* The main colored circle with white border */
+.pro-pin-core {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 3px solid #ffffff; /* Sharp white contrast border */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.6); /* Depth shadow */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    box-sizing: border-box;
+}
+
+/* The small white dot in the center */
+.pro-pin-center {
+    width: 6px;
+    height: 6px;
+    background: #ffffff;
+    border-radius: 50%;
+}
+
+/* Subtle pulsing glow effect */
+.pro-pin-glow {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    z-index: 1;
+    animation: pinPulse 2.5s infinite ease-out;
+}
+
+@keyframes pinPulse {
+    0% { transform: scale(0.5); opacity: 0.8; }
+    100% { transform: scale(1.5); opacity: 0; }
+}

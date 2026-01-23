@@ -36,3 +36,79 @@
     transform: rotate(360deg);
   }
 }
+
+/* --- STATUS BADGES --- */
+.status-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  text-transform: capitalize;
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.status-pending {
+  background-color: #ffcc00; /* Yellow */
+  color: #000;
+}
+
+.status-verified {
+  background-color: #007bff; /* Blue */
+  color: #fff;
+}
+
+.status-resolved {
+  background-color: #28a745; /* Green */
+  color: #fff;
+}
+
+/* --- RESOLVED PROOF SECTION --- */
+.resolved-proof {
+  margin-top: 15px;
+  padding: 15px;
+  background: #2a2a2a;
+  border: 1px solid #28a745;
+  border-radius: 10px;
+}
+
+.proof-img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 5px;
+  margin-top: 10px;
+  border: 1px solid #444;
+}
+
+/* --- FEEDBACK FORM --- */
+.feedback-box {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid #444;
+}
+
+.feedback-input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border-radius: 5px;
+  border: 1px solid #555;
+  background: #222;
+  color: white;
+}
+
+.submit-feedback-btn {
+  margin-top: 10px;
+  padding: 8px 15px;
+  background: #007bff;
+  border: none;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.submit-feedback-btn:hover {
+  background: #0056b3;
+}
