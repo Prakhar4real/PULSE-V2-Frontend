@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Footer from '../components/Footer'; 
 
 const Leaderboard = () => {
     const [leaders, setLeaders] = useState([]);
-    const [loading, setLoading] = useState(true); // 1. Added Loading State
+    const [loading, setLoading] = useState(true); 
     const navigate = useNavigate();
 
     useEffect(() => {

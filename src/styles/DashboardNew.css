@@ -20,24 +20,24 @@ body {
 /* --- MAIN GRID LAYOUT --- */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 1fr 350px; /* Main Content | Sidebar */
+  grid-template-columns: 1fr 350px; 
   gap: 20px;
   padding: 20px;
-  height: 100vh;
+  min-height: 100vh; 
   box-sizing: border-box;
-  overflow: hidden;
-}
 
+}
 /* --- LEFT SECTION (Map + Reports) --- */
 .main-content {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  height: 100%;
+  height: fit-content; 
 }
 
 .map-section {
-  flex: 2;
+  height: 400px; 
+  min-height: 400px;
   background: var(--card-bg);
   border-radius: 20px;
   border: var(--glass-border);
@@ -45,17 +45,22 @@ body {
   overflow: hidden;
 }
 
+.leaflet-container {
+    height: 100% !important;
+    width: 100% !important;
+}
+
 .reports-section {
-  flex: 1;
   display: flex;
+  flex-wrap: wrap;
   gap: 15px;
-  overflow-x: auto; /* Horizontal Scroll */
-  padding-bottom: 10px;
+  padding-bottom: 20px;
 }
 
 /* --- REPORT CARDS --- */
 .report-card-modern {
-  min-width: 250px;
+  flex: 1 1 45%; 
+  min-width: 300px; 
   background: var(--card-bg);
   border-radius: 15px;
   border: var(--glass-border);
@@ -63,6 +68,7 @@ body {
   display: flex;
   flex-direction: column;
   position: relative;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
 
 .report-img-modern {
@@ -89,7 +95,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  overflow-y: auto;
+  height: fit-content;
 }
 
 .sidebar-card {
@@ -165,13 +171,13 @@ body {
     position: relative;
 }
 
-/* The main colored circle with white border */
+
 .pro-pin-core {
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    border: 3px solid #ffffff; /* Sharp white contrast border */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.6); /* Depth shadow */
+    border: 3px solid #ffffff; 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.6); 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -187,7 +193,7 @@ body {
     border-radius: 50%;
 }
 
-/* Subtle pulsing glow effect */
+
 .pro-pin-glow {
     position: absolute;
     width: 40px;

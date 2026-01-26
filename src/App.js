@@ -1,47 +1,44 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider } from './context/ThemeContext'; 
-import NoticeBoard from './pages/NoticeBoard';
-
-// Components
-import Navbar from './components/Navbar'; 
-import ChatWidget from './components/ChatWidget';
-
-// Pages
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import NewReport from './pages/NewReport';
+import UserProfile from './pages/UserProfile';
+
+
 import Missions from './pages/Missions'; 
-import Leaderboard from './pages/Leaderboard';
+import Community from './pages/Community'; 
 
-
-
-import NewReport from './pages/NewReport'; 
-
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 
 function App() {
   return (
-    <ThemeProvider>
-      <Router>
-        <div className="app-container">
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/notices" element={<NoticeBoard />} />
-            
-            
-            <Route path="/new-report" element={<NewReport />} /> 
-            
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/missions" element={<Missions />} />
-          </Routes>
-          <ChatWidget />
+    <Router>
+      <div className="app-container" style={{display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#0b0c15'}}>
+        
+        
+        <Navbar />
+
+        <div style={{ flex: 1 }}>
+            <Routes>
+                <Route path="/" element={<Navigate to="/login" />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/new-report" element={<NewReport />} />
+                <Route path="/user/profile" element={<UserProfile />} />
+                
+                
+                <Route path="/missions" element={<Missions />} />
+                <Route path="/community" element={<Community />} />
+            </Routes>
         </div>
-      </Router>
-    </ThemeProvider>
+        
+        <Footer /> 
+      </div>
+    </Router>
   );
 }
 

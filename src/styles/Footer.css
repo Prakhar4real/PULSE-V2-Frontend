@@ -1,0 +1,144 @@
+.footer-container {
+    background-color: #0b0c15; 
+    border-top: 1px solid #1f2029;
+    padding: 60px 40px 20px 40px;
+    color: #8b8d9d;
+    font-family: 'Inter', sans-serif;
+    margin-top: auto;
+}
+
+.footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 40px;
+}
+
+/* BRAND COLUMN */
+.footer-brand {
+    flex: 1 1 300px; 
+}
+
+.footer-logo {
+    font-size: 1.8rem;
+    color: white;
+    margin-bottom: 15px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.footer-desc {
+    line-height: 1.6;
+    margin-bottom: 25px;
+    font-size: 0.95rem;
+    max-width: 300px;
+}
+
+/* APP STORE BUTTONS */
+.app-badges {
+    display: flex;
+    gap: 15px;
+}
+
+.store-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #151621;
+    border: 1px solid #2a2b3d;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.store-btn:hover {
+    border-color: #2970ff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(41, 112, 255, 0.2);
+}
+
+.store-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 0.7rem;
+}
+
+.store-text strong {
+    font-size: 0.9rem;
+}
+
+/* LINK COLUMNS */
+.footer-links {
+    flex: 1 1 150px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.footer-links h4 {
+    color: white;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.footer-links a {
+    color: #8b8d9d;
+    text-decoration: none;
+    transition: color 0.2s;
+    font-size: 0.95rem;
+}
+
+.footer-links a:hover {
+    color: #2970ff; /* Blue hover effect */
+}
+
+/* DIVIDER */
+.footer-divider {
+    height: 1px;
+    background: #1f2029;
+    margin: 40px 0 25px 0;
+}
+
+/* BOTTOM BAR */
+.footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-size: 0.9rem;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.social-icons {
+    display: flex;
+    gap: 20px;
+}
+
+.social-link {
+    color: #8b8d9d;
+    font-size: 1.2rem;
+    transition: transform 0.2s, color 0.2s;
+}
+
+.social-link:hover {
+    color: white;
+    transform: scale(1.1);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+    }
+    .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+}

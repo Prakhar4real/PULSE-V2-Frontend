@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/NoticeBoard.css';
+import Footer from '../components/Footer'; 
 
 const NoticeBoard = () => {
     const [notices, setNotices] = useState([]);
