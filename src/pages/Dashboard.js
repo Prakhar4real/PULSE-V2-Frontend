@@ -8,6 +8,7 @@ import L from 'leaflet';
 import 'leaflet.heat'; 
 import { LineChart, Line, ResponsiveContainer, XAxis } from 'recharts'; 
 import { FiWind, FiSun, FiMapPin, FiUser, FiCrosshair } from 'react-icons/fi'; 
+import { FaRobot } from 'react-icons/fa'; 
 import '../styles/DashboardNew.css';
 
 // --- HELPER: GET IMAGE URL ---
@@ -112,7 +113,7 @@ const Dashboard = () => {
         handleLocateMe();
     }, []);
 
-    // ✅ INDEPENDENT DATA LOADING
+    
     const fetchAllData = async () => {
         const token = localStorage.getItem('access');
         const config = { headers: { Authorization: `Bearer ${token}` } };
@@ -160,13 +161,14 @@ const Dashboard = () => {
     const getStatusColor = (s) => (s === 'resolved' ? '#00d68f' : s === 'verified' ? '#007bff' : '#ffb547');
     const getAqiColor = (aqi) => (aqi <= 50 ? '#00d68f' : aqi <= 100 ? '#ffb547' : '#ff3b3b');
 
-    // ✅ CRASH GUARD
+   
     const validMapReports = reports.filter(r => r.latitude && r.longitude && !isNaN(r.latitude));
 
     if (loading) return <div style={{color: 'white', padding: 40}}>Loading Command Center...</div>;
 
     return (
-        <div className="dashboard-grid">
+        <div className="dashboard-grid" style={{position: 'relative'}}>
+
             <div className="main-content">
                 <div className="map-section">
                     <div style={{position: 'absolute', top: 20, left: 20, zIndex: 999}}>
@@ -247,7 +249,7 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {/*REPORT BUTTON */}
+                {/* ✅ REPORT BUTTON */}
                 <button 
                     onClick={() => navigate('/new-report')} 
                     style={{

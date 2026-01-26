@@ -1,44 +1,56 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+
+// Pages
+import LandingPage from './pages/LandingPage';
+import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import NewReport from './pages/NewReport';
-import UserProfile from './pages/UserProfile';
+import Missions from './pages/Missions'; 
+import NewReport from './pages/NewReport'; 
+import UserProfile from './pages/UserProfile'; 
 import Documentation from './pages/Documentation';
 import ReportIssue from './pages/ReportIssue';
-import Missions from './pages/Missions';
-import Community from './pages/Community';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
+import Community from './pages/Community'; 
+
+// Components
+import ChatWidget from './components/ChatWidget';
+import Navbar from './components/Navbar'; 
+
+const Layout = ({ children }) => {
+  const location = useLocation();
+  const hideNavbarRoutes = ['/', '/login', '/register'];
+  const showNavbar = !hideNavbarRoutes.includes(location.pathname);
+
+  return (
+    <>
+      {showNavbar && <Navbar />} 
+      <ChatWidget />
+      {children}
+    </>
+  );
+};
 
 function App() {
   return (
     <Router>
-      <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#0b0c15' }}>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/missions" element={<Missions />} />
+          <Route path="/new-report" element={<NewReport />} />
+          <Route path="/user/profile" element={<UserProfile />} />
+          
+          
+          <Route path="/community" element={<Community />} />
 
-
-        <Navbar />
-
-        <div style={{ flex: 1 }}>
-          <Routes>
-            <Route path="/" element={<Navigate to="/login" />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/new-report" element={<NewReport />} />
-            <Route path="/user/profile" element={<UserProfile />} />
-            <Route path="/docs/:type" element={<Documentation />} />
-            <Route path="/report-issue" element={<ReportIssue />} />
-
-
-            <Route path="/missions" element={<Missions />} />
-            <Route path="/community" element={<Community />} />
-          </Routes>
-        </div>
-
-        <Footer />
-      </div>
+          <Route path="/docs/:type" element={<Documentation />} />
+          <Route path="/report-issue" element={<ReportIssue />} />
+        </Routes>
+      </Layout>
     </Router>
   );
 }
