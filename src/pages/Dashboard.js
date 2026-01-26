@@ -16,12 +16,12 @@ const getImageUrl = (path) => {
     return path.startsWith('http') ? path : `http://127.0.0.1:8000${path}`;
 };
 
-// --- STABLE COORDS (Prevent Map Crashes) ---
+// --- STABLE COORDS ---
 const getStableCoords = (report) => {
     if (report.latitude && report.longitude) {
         return [parseFloat(report.latitude), parseFloat(report.longitude)];
     }
-    return [0, 0]; // Default safe coords
+    return [0, 0]; 
 };
 
 // --- DYNAMIC PINS ---
@@ -112,26 +112,23 @@ const Dashboard = () => {
         handleLocateMe();
     }, []);
 
-    
+    // ✅ INDEPENDENT DATA LOADING
     const fetchAllData = async () => {
         const token = localStorage.getItem('access');
         const config = { headers: { Authorization: `Bearer ${token}` } };
         
         setLoading(true);
 
-        // 1. Fetch User Profile
         try {
             const userRes = await api.get('user/profile/', config);
             setUser(userRes.data);
         } catch (e) { console.error("User Load Failed", e); }
 
-        // 2. Fetch Reports
         try {
             const reportRes = await api.get('reports/', config);
             setReports(reportRes.data);
         } catch (e) { console.error("Reports Load Failed", e); }
 
-        // 3. Fetch Leaderboard
         try {
             const lbRes = await api.get('leaderboard/', config);
             setLeaderboard(lbRes.data);
@@ -163,7 +160,7 @@ const Dashboard = () => {
     const getStatusColor = (s) => (s === 'resolved' ? '#00d68f' : s === 'verified' ? '#007bff' : '#ffb547');
     const getAqiColor = (aqi) => (aqi <= 50 ? '#00d68f' : aqi <= 100 ? '#ffb547' : '#ff3b3b');
 
-    // ✅ CRASH GUARD: Only map safe reports, but show ALL in the list
+    // ✅ CRASH GUARD
     const validMapReports = reports.filter(r => r.latitude && r.longitude && !isNaN(r.latitude));
 
     if (loading) return <div style={{color: 'white', padding: 40}}>Loading Command Center...</div>;
@@ -183,7 +180,6 @@ const Dashboard = () => {
                         <UserLocationDot userLocation={userLocation} />
                         <TrafficHeatmap reports={reports} />
                         
-                        {/* ✅ MAP SAFE REPORTS ONLY */}
                         {validMapReports.map((report) => (
                             <Marker key={report.id} position={getStableCoords(report)} icon={getMarkerIcon(report.status)}>
                                 <Popup><strong>{report.title}</strong><br/>{report.status}</Popup>
@@ -211,7 +207,7 @@ const Dashboard = () => {
 
             <div className="sidebar">
                 
-                {/* 1. USER PROFILE CARD */}
+                {/* 1. USER PROFILE */}
                 <div className="sidebar-card">
                     <div className="profile-card-header" style={{display:'flex', alignItems:'center', gap:'15px'}}>
                          <div style={{
@@ -231,6 +227,7 @@ const Dashboard = () => {
                     <button className="view-profile-btn" onClick={() => navigate('/user/profile')}>View Profile</button>
                 </div>
 
+                {/* 2. AIR QUALITY */}
                 <div className="sidebar-card">
                     <div style={{display: 'flex', justifyContent: 'space-between'}}><span>Air Quality</span><FiWind color={getAqiColor(weather.aqi)}/></div>
                     <div className="aqi-container">
@@ -239,6 +236,7 @@ const Dashboard = () => {
                     </div>
                 </div>
 
+                {/* 3. WEATHER */}
                 <div className="sidebar-card">
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                         <div>
@@ -249,7 +247,19 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {/* 2. TOP CONTRIBUTORS */}
+                {/*REPORT BUTTON */}
+                <button 
+                    onClick={() => navigate('/new-report')} 
+                    style={{
+                        background: '#2970ff', color: 'white', padding: '15px', 
+                        borderRadius: '12px', width: '100%', border: 'none', 
+                        cursor: 'pointer', margin: '20px 0', fontWeight: 'bold', fontSize: '1rem'
+                    }}
+                >
+                    + Report New Incident
+                </button>
+
+                {/* 4. TOP CONTRIBUTORS */}
                 <div className="sidebar-card">
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px'}}>
                          <h4 style={{margin: 0}}>Top Contributors</h4>
@@ -285,6 +295,7 @@ const Dashboard = () => {
                     )) : <p style={{color: '#555', fontSize: '0.8rem'}}>No data yet</p>}
                 </div>
 
+                {/* 5. TRAFFIC FLOW */}
                 <div className="sidebar-card">
                     <span>Traffic Flow (Reports)</span>
                     <div style={{height: '100px'}}>
@@ -296,8 +307,6 @@ const Dashboard = () => {
                         </ResponsiveContainer>
                     </div>
                 </div>
-
-                <button onClick={() => navigate('/new-report')} style={{background: '#2970ff', color: 'white', padding: '15px', borderRadius: '12px', width: '100%', border: 'none', cursor: 'pointer'}}>+ Report New Incident</button>
             </div>
         </div>
     );
