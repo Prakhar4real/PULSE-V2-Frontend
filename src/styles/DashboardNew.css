@@ -207,3 +207,118 @@ body {
     0% { transform: scale(0.5); opacity: 0.8; }
     100% { transform: scale(1.5); opacity: 0; }
 }
+
+
+
+/* --- COMPACT DASHBOARD GRID --- */
+.reports-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+
+/* --- FLIP CARD CONTAINER --- */
+.flip-card {
+    background-color: transparent;
+    perspective: 1000px;
+    height: 220px;
+    width: 100%;
+}
+
+/* --- INNER WRAPPER --- */
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: left;
+    transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+    transform-style: preserve-3d;
+    border-radius: 12px;
+}
+
+.flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+}
+
+/* --- SHARED STYLES --- */
+.flip-card-front, .flip-card-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;  
+    height: 100%; 
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    overflow: hidden; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    box-sizing: border-box; 
+}
+
+/* --- FRONT --- */
+.flip-card-front {
+    background-color: #151621;
+    border: 1px solid #2a2b3d;
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+}
+
+/*BACK*/
+.flip-card-back {
+    background-color: #0b0c15;
+    color: #00d68f;
+    transform: rotateY(180deg);
+    border: 1px solid #00d68f;
+    box-shadow: inset 0 0 20px rgba(0, 214, 143, 0.1);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- BACK CONTENT MANAGEMENT --- */
+.terminal-header {
+    border-bottom: 1px dashed #00d68f;
+    padding-bottom: 5px;
+    margin-bottom: 8px;
+    font-size: 0.7rem;
+    opacity: 0.7;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    flex-shrink: 0; 
+}
+
+.feedback-text {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #e0e0e0;
+    margin: 0;
+    flex: 1;          
+    overflow-y: auto; 
+    min-height: 0;    
+    padding-right: 5px;
+}
+
+/* Scrollbar styling */
+.feedback-text::-webkit-scrollbar { width: 3px; }
+.feedback-text::-webkit-scrollbar-thumb { background: #00d68f; border-radius: 4px; }
+
+
+.resolved-img-preview {
+    margin-top: 10px;
+    height: 50px;      
+    width: 100%;
+    object-fit: cover; 
+    border-radius: 6px;
+    border: 1px solid #333;
+    opacity: 0.9;
+    flex-shrink: 0;    
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.resolved-img-preview:hover {
+    opacity: 1;
+    border-color: #00d68f;
+}

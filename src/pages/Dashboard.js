@@ -7,15 +7,13 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import 'leaflet.heat'; 
 import { LineChart, Line, ResponsiveContainer, XAxis } from 'recharts'; 
-import { FiWind, FiSun, FiMapPin, FiUser, FiCrosshair } from 'react-icons/fi'; 
+import { FiWind, FiSun, FiMapPin, FiUser, FiCrosshair, FiClock } from 'react-icons/fi'; 
 import '../styles/DashboardNew.css';
-
 
 const getUserIdFromToken = () => {
     const token = localStorage.getItem('access');
     if (!token) return null;
     try {
-        
         const payload = JSON.parse(atob(token.split('.')[1]));
         return payload.user_id; 
     } catch (e) {
@@ -144,21 +142,16 @@ const Dashboard = () => {
         setLoading(true);
 
         try {
-            // 1. Get Real User ID from Token
             const realUserId = getUserIdFromToken();
             console.log("Real User ID from Token:", realUserId);
 
-            // 2. Fetch User Profile
             const userRes = await api.get('user/profile/', config);
             setUser(userRes.data);
 
-            // 3. Fetch All Reports
             const reportRes = await api.get('reports/', config);
             const allData = reportRes.data;
 
-            
             const myReports = allData.filter(r => {
-                
                 if (realUserId && r.user == realUserId) return true;
                 return false;
             });
@@ -168,7 +161,6 @@ const Dashboard = () => {
             const sortedMyReports = myReports.sort((a, b) => b.id - a.id);
             setReports(sortedMyReports);
 
-            // Leaderboard
             const lbRes = await api.get('leaderboard/', config);
             setLeaderboard(lbRes.data);
 
@@ -253,13 +245,62 @@ const Dashboard = () => {
                             {recentReports.map((report) => {
                                 const hasCoords = parseCoords(report) !== null;
                                 return (
-                                    <div key={report.id} className="report-card-modern">
-                                        <div className="status-tag" style={{backgroundColor: getStatusColor(report.status)}}>{report.status}</div>
-                                        <img src={getImageUrl(report.image)} alt="Report" className="report-img-modern" />
-                                        <h4 style={{margin: '10px 0', fontSize: '1rem'}}>{report.title}</h4>
-                                        <div style={{display: 'flex', alignItems: 'center', color: hasCoords ? '#8b8d9d' : '#ff4d4d', fontSize: '0.8rem'}}>
-                                            <FiMapPin style={{marginRight: 5}}/> 
-                                            {hasCoords ? (report.location || locationName) : "No GPS Data"}
+                                    <div key={report.id} className="flip-card">
+                                        <div className="flip-card-inner">
+                                            <div className="flip-card-front">
+                                                <div className="status-tag" style={{backgroundColor: getStatusColor(report.status), zIndex: 2}}>
+                                                    {report.status}
+                                                </div>
+                                                
+                                                <div style={{height: '120px', overflow: 'hidden', borderBottom: '1px solid #2a2b3d'}}>
+                                                    <img 
+                                                        src={getImageUrl(report.image)} 
+                                                        alt="Report" 
+                                                        style={{width: '100%', height: '100%', objectFit: 'cover'}}
+                                                    />
+                                                </div>
+
+                                                <div style={{padding: '15px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
+                                                    <h4 style={{margin: '0 0 5px 0', fontSize: '1rem', color: 'white'}}>{report.title}</h4>
+                                                    <div style={{display: 'flex', alignItems: 'center', color: hasCoords ? '#8b8d9d' : '#ff4d4d', fontSize: '0.8rem'}}>
+                                                        <FiMapPin style={{marginRight: 5}}/> 
+                                                        {hasCoords ? (report.location || locationName) : "No GPS Data"}
+                                                    </div>
+                                                </div>
+                                                
+                                                {report.feedback && (
+                                                    <div style={{position: 'absolute', bottom: 10, right: 10, fontSize: '0.7rem', color: '#2970ff', opacity: 0.8}}>
+                                                        ⟳ VIEW INTEL
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="flip-card-back">
+                                                <div className="terminal-header">
+                                                    REMARKS
+                                                </div>
+                                                
+                                                {report.feedback ? (
+                                                    <>
+                                                        <p className="feedback-text">
+                                                            <span style={{color: '#00d68f'}}>{">"} ADMIN:</span> {report.feedback}
+                                                        </p>
+                                                        {report.resolved_image && (
+                                                            <img 
+                                                                src={getImageUrl(report.resolved_image)} 
+                                                                alt="Fix Proof" 
+                                                                className="resolved-img-preview"
+                                                            />
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    <div style={{textAlign: 'center', opacity: 0.5, marginTop: '20px'}}>
+                                                        <FiClock size={30} />
+                                                        <p>Awaiting Admin Review...</p>
+                                                    </div>
+                                                )}
+                                            </div>
+
                                         </div>
                                     </div>
                                 );

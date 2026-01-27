@@ -56,7 +56,7 @@ const History = () => {
             case 'resolved': return { color: '#00d68f', icon: <FiCheckCircle /> };
             case 'verified': return { color: '#007bff', icon: <FiCheckCircle /> };
             case 'rejected': return { color: '#ff4d4d', icon: <FiXCircle /> };
-            default: return { color: '#ffb547', icon: <FiClock /> }; // Pending
+            default: return { color: '#ffb547', icon: <FiClock /> }; 
         }
     };
 
@@ -82,7 +82,8 @@ const History = () => {
                         const statusConfig = getStatusConfig(report.status);
                         return (
                             <div key={report.id} style={styles.row}>
-                                {/* Image Thumbnail */}
+                                
+                                {/* 1. Image Thumbnail */}
                                 <div style={styles.imgContainer}>
                                     {report.image ? (
                                         <img src={getImageUrl(report.image)} alt="Evidence" style={styles.img} />
@@ -91,7 +92,7 @@ const History = () => {
                                     )}
                                 </div>
 
-                                {/* Details */}
+                                {/* 2. Details & Feedback */}
                                 <div style={{flex: 1}}>
                                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'start'}}>
                                         <h3 style={styles.reportTitle}>{report.title}</h3>
@@ -114,17 +115,33 @@ const History = () => {
                                             ? (report.description.length > 120 ? report.description.substring(0, 120) + "..." : report.description)
                                             : "No description provided."}
                                     </p>
+
+                                    
+                                    {report.feedback && (
+                                        <div style={{marginTop: '12px', padding: '10px', background: 'rgba(0, 214, 143, 0.1)', borderLeft: '3px solid #00d68f', borderRadius: '4px', fontSize: '0.9rem'}}>
+                                            <span style={{color: '#00d68f', fontWeight: 'bold'}}>ADMIN:</span> <span style={{color: '#e0e0e0'}}>{report.feedback}</span>
+                                        </div>
+                                    )}
                                 </div>
 
-                                {/* Status Badge */}
-                                <div style={{
-                                    ...styles.statusBadge, 
-                                    borderColor: statusConfig.color, 
-                                    color: statusConfig.color,
-                                    backgroundColor: `${statusConfig.color}15` // 15% opacity
-                                }}>
-                                    {statusConfig.icon} 
-                                    <span>{report.status.toUpperCase()}</span>
+                                {/* 3. Status Badge & Proof */}
+                                <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', minWidth: '120px'}}>
+                                    <div style={{
+                                        ...styles.statusBadge, 
+                                        borderColor: statusConfig.color, 
+                                        color: statusConfig.color,
+                                        backgroundColor: `${statusConfig.color}15`
+                                    }}>
+                                        {statusConfig.icon} 
+                                        <span>{report.status.toUpperCase()}</span>
+                                    </div>
+
+                                    
+                                    {report.resolved_image && (
+                                        <a href={getImageUrl(report.resolved_image)} target="_blank" rel="noopener noreferrer" style={{fontSize: '0.85rem', color: '#00d68f', textDecoration: 'underline', cursor: 'pointer', fontWeight: '500'}}>
+                                            View Proof
+                                        </a>
+                                    )}
                                 </div>
                             </div>
                         );
@@ -137,7 +154,7 @@ const History = () => {
 
 const styles = {
     container: {
-        padding: '40px 10%', // Responsive padding
+        padding: '40px 10%', 
         minHeight: '100vh',
         backgroundColor: '#050509',
         color: 'white',
@@ -152,7 +169,7 @@ const styles = {
         border: '2px dashed #1f2029', borderRadius: '16px' 
     },
     row: {
-        display: 'flex', alignItems: 'center', gap: '25px',
+        display: 'flex', alignItems: 'start', gap: '25px', 
         padding: '25px', backgroundColor: '#151621',
         borderRadius: '16px', border: '1px solid #1f2029',
         transition: 'all 0.2s ease',
@@ -170,9 +187,9 @@ const styles = {
     desc: { margin: 0, color: '#888', fontSize: '0.95rem', lineHeight: '1.5' },
     statusBadge: {
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '5px',
-        padding: '10px 20px', borderRadius: '12px',
+        padding: '10px 15px', borderRadius: '12px',
         fontWeight: 'bold', fontSize: '0.8rem', letterSpacing: '1px',
-        border: '1px solid', minWidth: '100px', textAlign: 'center'
+        border: '1px solid', width: '100%', textAlign: 'center'
     }
 };
 
