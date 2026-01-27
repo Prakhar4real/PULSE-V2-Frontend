@@ -8,29 +8,81 @@ import L from 'leaflet';
 import 'leaflet.heat'; 
 import { LineChart, Line, ResponsiveContainer, XAxis } from 'recharts'; 
 import { FiWind, FiSun, FiMapPin, FiUser, FiCrosshair } from 'react-icons/fi'; 
-import { FaRobot } from 'react-icons/fa'; 
 import '../styles/DashboardNew.css';
 
-// --- HELPER: GET IMAGE URL ---
+
+const getUserIdFromToken = () => {
+    const token = localStorage.getItem('access');
+    if (!token) return null;
+    try {
+        
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.user_id; 
+    } catch (e) {
+        console.error("Token decode failed", e);
+        return null;
+    }
+};
+
 const getImageUrl = (path) => {
     if (!path) return null;
     return path.startsWith('http') ? path : `http://127.0.0.1:8000${path}`;
 };
 
-// --- STABLE COORDS ---
-const getStableCoords = (report) => {
-    if (report.latitude && report.longitude) {
-        return [parseFloat(report.latitude), parseFloat(report.longitude)];
-    }
-    return [0, 0]; 
+const parseCoords = (report) => {
+    const lat = parseFloat(report.latitude);
+    const lng = parseFloat(report.longitude);
+    if (!isNaN(lat) && !isNaN(lng) && (lat !== 0 || lng !== 0)) return [lat, lng];
+    return null; 
 };
 
-// --- DYNAMIC PINS ---
+const RecenterMap = ({ center }) => {
+    const map = useMap();
+    useEffect(() => {
+        if (center) map.flyTo([center.lat, center.lng], 14, { animate: true, duration: 1.5 });
+    }, [center]);
+    return null;
+};
+
+const AutoFitBounds = ({ reports }) => {
+    const map = useMap();
+    useEffect(() => {
+        const validCoords = reports.map(r => parseCoords(r)).filter(c => c !== null);
+        if (validCoords.length > 0) {
+            const bounds = L.latLngBounds(validCoords);
+            map.fitBounds(bounds, { padding: [80, 80] });
+        }
+    }, [reports, map]);
+    return null;
+};
+
+const TrafficHeatmap = ({ reports }) => {
+    const map = useMap();
+    useEffect(() => {
+        const trafficPoints = reports
+            .filter(r => {
+                if (r.status === 'resolved') return false;
+                const isTrafficCategory = r.category && r.category.toLowerCase() === 'traffic';
+                const isTrafficTitle = r.title && r.title.toLowerCase().includes('traffic');
+                return isTrafficCategory || isTrafficTitle;
+            })
+            .map(r => parseCoords(r))
+            .filter(c => c !== null)
+            .map(c => [...c, 1.0]);
+
+        if (trafficPoints.length > 0) {
+            const heat = L.heatLayer(trafficPoints, { radius: 40, blur: 25, maxZoom: 15, gradient: { 0.4: '#ffd700', 0.65: '#ff8c00', 1.0: '#ff0000' } }).addTo(map);
+            return () => { map.removeLayer(heat); };
+        }
+    }, [reports, map]);
+    return null;
+};
+
 const getMarkerIcon = (status) => {
     let color = '#ffb547'; 
     let glowColor = 'rgba(255, 181, 71, 0.6)';
-    if (status === 'verified') { color = '#007bff'; glowColor = 'rgba(0, 123, 255, 0.6)'; }
-    if (status === 'resolved') { color = '#00d68f'; glowColor = 'rgba(0, 214, 143, 0.2)'; }
+    if (status === 'verified') { color = '#007bff'; glowColor = 'rgba(0, 123, 255, 0.6)'; } 
+    if (status === 'resolved') { color = '#00d68f'; glowColor = 'rgba(0, 214, 143, 0.2)'; } 
 
     return L.divIcon({
         className: 'pro-pin-container',
@@ -40,20 +92,8 @@ const getMarkerIcon = (status) => {
     });
 };
 
-// --- 3. BLUE DOT---
 const UserLocationDot = ({ userLocation }) => {
-    const map = useMap();
-    const hasFlown = React.useRef(false); 
-
-    useEffect(() => {
-        if (userLocation && !hasFlown.current) {
-            map.flyTo(userLocation, 14, { animate: true, duration: 2 });
-            hasFlown.current = true; 
-        }
-    }, [userLocation, map]);
-
     if (!userLocation) return null;
-
     return (
         <>
             <CircleMarker center={userLocation} radius={25} pathOptions={{ color: 'transparent', fillColor: '#2970ff', fillOpacity: 0.2 }} />
@@ -64,26 +104,9 @@ const UserLocationDot = ({ userLocation }) => {
     );
 };
 
-// --- LOCATE BTN ---
 const LocateButton = ({ onLocate }) => (
     <button onClick={onLocate} style={styles.locateBtn}><FiCrosshair /> Locate Me</button>
 );
-
-// --- HEATMAP ---
-const TrafficHeatmap = ({ reports }) => {
-    const map = useMap();
-    useEffect(() => {
-        const trafficPoints = reports
-            .filter(r => r.latitude && r.longitude && !isNaN(r.latitude) && ((r.category && r.category.toLowerCase() === 'traffic') || r.title.toLowerCase().includes('traffic')))
-            .map(r => [parseFloat(r.latitude), parseFloat(r.longitude), 1.0]);
-
-        if (trafficPoints.length > 0) {
-            const heat = L.heatLayer(trafficPoints, { radius: 40, blur: 25, maxZoom: 15, gradient: { 0.4: '#ffd700', 0.65: '#ff8c00', 1.0: '#ff0000' } }).addTo(map);
-            return () => { map.removeLayer(heat); };
-        }
-    }, [reports, map]);
-    return null;
-};
 
 const Dashboard = () => {
     const navigate = useNavigate();
@@ -102,7 +125,8 @@ const Dashboard = () => {
         navigator.geolocation.getCurrentPosition((pos) => {
             const { latitude, longitude } = pos.coords;
             const newUserLoc = { lat: latitude, lng: longitude };
-            setUserLocation(newUserLoc); setMapCenter(newUserLoc);
+            setUserLocation(newUserLoc); 
+            setMapCenter({ ...newUserLoc }); 
             fetchRealWeather(latitude, longitude);
         }, (err) => console.error(err), { enableHighAccuracy: true });
     };
@@ -113,7 +137,6 @@ const Dashboard = () => {
         handleLocateMe();
     }, []);
 
-    
     const fetchAllData = async () => {
         const token = localStorage.getItem('access');
         const config = { headers: { Authorization: `Bearer ${token}` } };
@@ -121,20 +144,35 @@ const Dashboard = () => {
         setLoading(true);
 
         try {
+            // 1. Get Real User ID from Token
+            const realUserId = getUserIdFromToken();
+            console.log("Real User ID from Token:", realUserId);
+
+            // 2. Fetch User Profile
             const userRes = await api.get('user/profile/', config);
             setUser(userRes.data);
-        } catch (e) { console.error("User Load Failed", e); }
 
-        try {
+            // 3. Fetch All Reports
             const reportRes = await api.get('reports/', config);
-            setReports(reportRes.data);
-        } catch (e) { console.error("Reports Load Failed", e); }
+            const allData = reportRes.data;
 
-        try {
+            
+            const myReports = allData.filter(r => {
+                
+                if (realUserId && r.user == realUserId) return true;
+                return false;
+            });
+
+            console.log("Filtered Reports:", myReports.length);
+            
+            const sortedMyReports = myReports.sort((a, b) => b.id - a.id);
+            setReports(sortedMyReports);
+
+            // Leaderboard
             const lbRes = await api.get('leaderboard/', config);
             setLeaderboard(lbRes.data);
-        } catch (e) { console.error("Leaderboard Load Failed", e); }
 
+        } catch (e) { console.error("Data Load Failed", e); }
         setLoading(false);
     };
 
@@ -161,16 +199,24 @@ const Dashboard = () => {
     const getStatusColor = (s) => (s === 'resolved' ? '#00d68f' : s === 'verified' ? '#007bff' : '#ffb547');
     const getAqiColor = (aqi) => (aqi <= 50 ? '#00d68f' : aqi <= 100 ? '#ffb547' : '#ff3b3b');
 
-   
-    const validMapReports = reports.filter(r => r.latitude && r.longitude && !isNaN(r.latitude));
+    const mapReports = reports.filter(r => parseCoords(r) !== null);
+    const recentReports = reports.slice(0, 4);
 
     if (loading) return <div style={{color: 'white', padding: 40}}>Loading Command Center...</div>;
 
     return (
-        <div className="dashboard-grid" style={{position: 'relative'}}>
-
+        <div className="dashboard-grid">
             <div className="main-content">
-                <div className="map-section">
+                <div className="map-section" style={{ 
+                    position: 'relative', overflow: 'hidden', borderRadius: '16px', 
+                    border: '2px solid #2970ff', boxShadow: '0 0 20px rgba(41, 112, 255, 0.3)' 
+                }}>
+                    <div style={{
+                        position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+                        backgroundImage: 'linear-gradient(rgba(41, 112, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(41, 112, 255, 0.1) 1px, transparent 1px)',
+                        backgroundSize: '40px 40px', pointerEvents: 'none', zIndex: 400, boxShadow: 'inset 0 0 50px rgba(0,0,0,0.5)'
+                    }}></div>
+
                     <div style={{position: 'absolute', top: 20, left: 20, zIndex: 999}}>
                         <h2 style={{margin: 0, textShadow: '0 2px 4px rgba(0,0,0,0.8)', color: 'white'}}>Command Center</h2>
                         <span style={{color: '#00d68f', fontSize: '0.9rem', fontWeight: 'bold'}}>● Live Monitoring</span>
@@ -178,38 +224,56 @@ const Dashboard = () => {
                     
                     <MapContainer center={[mapCenter.lat, mapCenter.lng]} zoom={13} style={{ height: "100%", width: "100%" }} zoomControl={false}>
                         <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+                        
+                        <AutoFitBounds reports={reports} />
+                        <RecenterMap center={mapCenter} />
                         <LocateButton onLocate={handleLocateMe} />
                         <UserLocationDot userLocation={userLocation} />
-                        <TrafficHeatmap reports={reports} />
-                        
-                        {validMapReports.map((report) => (
-                            <Marker key={report.id} position={getStableCoords(report)} icon={getMarkerIcon(report.status)}>
-                                <Popup><strong>{report.title}</strong><br/>{report.status}</Popup>
-                            </Marker>
-                        ))}
+                        <TrafficHeatmap reports={reports} /> 
+
+                        {mapReports.map((report) => {
+                            const coords = parseCoords(report);
+                            return (
+                                <Marker key={report.id} position={coords} icon={getMarkerIcon(report.status)}>
+                                    <Popup><strong>{report.title}</strong><br/>{report.status}</Popup>
+                                </Marker>
+                            );
+                        })}
                     </MapContainer>
                 </div>
 
                 <div>
-                    <h3 style={{color: '#8b8d9d', marginBottom: '10px'}}>Live Citizen Reports ({reports.length})</h3>
-                    <div className="reports-section">
-                        {reports.map((report) => (
-                            <div key={report.id} className="report-card-modern">
-                                <div className="status-tag" style={{backgroundColor: getStatusColor(report.status)}}>{report.status}</div>
-                                <img src={getImageUrl(report.image)} alt="Report" className="report-img-modern" />
-                                <h4 style={{margin: '10px 0', fontSize: '1rem'}}>{report.title}</h4>
-                                <div style={{display: 'flex', alignItems: 'center', color: '#8b8d9d', fontSize: '0.8rem'}}>
-                                    <FiMapPin style={{marginRight: 5}}/> {report.location || locationName}
-                                </div>
-                            </div>
-                        ))}
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px'}}>
+                        <h3 style={{color: '#8b8d9d', margin: 0}}>My Recent Reports</h3>
+                        <span style={{color: '#2970ff', cursor: 'pointer', fontSize: '0.9rem'}} onClick={() => navigate('/history')}>View Full History →</span>
                     </div>
+                    
+                    {recentReports.length > 0 ? (
+                        <div className="reports-section">
+                            {recentReports.map((report) => {
+                                const hasCoords = parseCoords(report) !== null;
+                                return (
+                                    <div key={report.id} className="report-card-modern">
+                                        <div className="status-tag" style={{backgroundColor: getStatusColor(report.status)}}>{report.status}</div>
+                                        <img src={getImageUrl(report.image)} alt="Report" className="report-img-modern" />
+                                        <h4 style={{margin: '10px 0', fontSize: '1rem'}}>{report.title}</h4>
+                                        <div style={{display: 'flex', alignItems: 'center', color: hasCoords ? '#8b8d9d' : '#ff4d4d', fontSize: '0.8rem'}}>
+                                            <FiMapPin style={{marginRight: 5}}/> 
+                                            {hasCoords ? (report.location || locationName) : "No GPS Data"}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div style={{padding: '40px', textAlign: 'center', color: '#666', border: '1px dashed #333', borderRadius: '12px'}}>
+                            <p>You haven't submitted any reports yet.</p>
+                        </div>
+                    )}
                 </div>
             </div>
 
             <div className="sidebar">
-                
-                {/* 1. USER PROFILE */}
                 <div className="sidebar-card">
                     <div className="profile-card-header" style={{display:'flex', alignItems:'center', gap:'15px'}}>
                          <div style={{
@@ -229,7 +293,6 @@ const Dashboard = () => {
                     <button className="view-profile-btn" onClick={() => navigate('/user/profile')}>View Profile</button>
                 </div>
 
-                {/* 2. AIR QUALITY */}
                 <div className="sidebar-card">
                     <div style={{display: 'flex', justifyContent: 'space-between'}}><span>Air Quality</span><FiWind color={getAqiColor(weather.aqi)}/></div>
                     <div className="aqi-container">
@@ -238,7 +301,6 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {/* 3. WEATHER */}
                 <div className="sidebar-card">
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                         <div>
@@ -249,57 +311,38 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {/* ✅ REPORT BUTTON */}
-                <button 
-                    onClick={() => navigate('/new-report')} 
-                    style={{
-                        background: '#2970ff', color: 'white', padding: '15px', 
-                        borderRadius: '12px', width: '100%', border: 'none', 
-                        cursor: 'pointer', margin: '20px 0', fontWeight: 'bold', fontSize: '1rem'
-                    }}
-                >
+                <button onClick={() => navigate('/new-report')} style={{
+                    background: '#2970ff', color: 'white', padding: '15px', 
+                    borderRadius: '12px', width: '100%', border: 'none', cursor: 'pointer', margin: '20px 0', fontWeight: 'bold', fontSize: '1rem'
+                }}>
                     + Report New Incident
                 </button>
 
-                {/* 4. TOP CONTRIBUTORS */}
                 <div className="sidebar-card">
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px'}}>
                          <h4 style={{margin: 0}}>Top Contributors</h4>
                          <span style={{fontSize: '0.8rem', color: '#2970ff', cursor: 'pointer'}} onClick={() => navigate('/missions')}>View All</span>
                     </div>
-                    {leaderboard.length > 0 ? leaderboard.slice(0, 3).map((u, index) => (
+                    {leaderboard.slice(0, 3).map((u, index) => (
                         <div key={index} className="leader-row" style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, paddingBottom: 8, borderBottom: '1px solid #2a2b3d'}}>
                             <div style={{display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0}}>
-                                <span style={{
-                                    color: index === 0 ? '#ffd700' : index === 1 ? '#c0c0c0' : '#cd7f32', 
-                                    fontWeight: 'bold', width: '15px'
-                                }}>#{index + 1}</span>
-
-                                <div style={{
-                                    width: '32px', height: '32px', borderRadius: '50%', overflow: 'hidden', 
-                                    backgroundColor: '#2a2b3d', flexShrink: 0
-                                }}>
+                                <span style={{color: index === 0 ? '#ffd700' : index === 1 ? '#c0c0c0' : '#cd7f32', fontWeight: 'bold', width: '15px'}}>#{index + 1}</span>
+                                <div style={{width: '32px', height: '32px', borderRadius: '50%', overflow: 'hidden', backgroundColor: '#2a2b3d', flexShrink: 0}}>
                                     {u.profile_picture ? (
                                         <img src={getImageUrl(u.profile_picture)} alt="pfp" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
                                     ) : (
-                                        <div style={{width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center'}}>
-                                            <FiUser size={14} color="#888"/>
-                                        </div>
+                                        <div style={{width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center'}}><FiUser size={14} color="#888"/></div>
                                     )}
                                 </div>
-
-                                <span style={{whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '80px', fontWeight: '500'}}>
-                                    {u.username}
-                                </span>
+                                <span style={{whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '80px', fontWeight: '500'}}>{u.username}</span>
                             </div>
                             <span style={{color: '#00d68f', fontSize: '0.9rem', fontWeight: 'bold'}}>{u.points} XP</span>
                         </div>
-                    )) : <p style={{color: '#555', fontSize: '0.8rem'}}>No data yet</p>}
+                    ))}
                 </div>
 
-                {/* 5. TRAFFIC FLOW */}
                 <div className="sidebar-card">
-                    <span>Traffic Flow (Reports)</span>
+                    <span>Traffic Flow</span>
                     <div style={{height: '100px'}}>
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={trafficData}>
