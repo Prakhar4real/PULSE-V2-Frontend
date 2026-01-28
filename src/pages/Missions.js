@@ -49,7 +49,7 @@ const UserAvatar = ({ user, rank }) => {
     if (rank === 1) borderColor = '#c0c0c0'; // Silver
     if (rank === 2) borderColor = '#cd7f32'; // Bronze
 
-    // 2. Get Image URL (Handle Full URL vs Relative URL)
+    // 2. Get Image URL
     let imageUrl = null;
     if (user.profile_picture) {
         imageUrl = user.profile_picture.startsWith('http') 

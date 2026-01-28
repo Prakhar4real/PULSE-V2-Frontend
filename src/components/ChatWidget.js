@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../services/api';
-import { FaRobot, FaTimes, FaPaperPlane } from 'react-icons/fa';
+import { FaRobot, FaTimes, FaPaperPlane } from 'react-icons/fa'; 
 import { useLocation } from 'react-router-dom';
 
 const ChatWidget = () => {
+  
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     { sender: 'bot', text: 'Hello! I am PULSE AI. How can I assist you?' }
@@ -11,14 +12,10 @@ const ChatWidget = () => {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   
-  // 1. Hide Widget on Login/Register Pages (Optional polish)
   const location = useLocation();
-  const hideOnRoutes = ['/login', '/register', '/'];
-  if (hideOnRoutes.includes(location.pathname)) return null;
+  const chatContainerRef = useRef(null); 
 
-  // 2. Safe Auto-Scroll (Inside Box Only)
-  const chatContainerRef = useRef(null);
-  
+  // Safe Auto-Scroll function
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -27,9 +24,9 @@ const ChatWidget = () => {
 
   useEffect(() => {
     if (isOpen) {
-        scrollToBottom(); // Scroll when opened
+        scrollToBottom(); 
     }
-  }, [isOpen, messages]); // Scroll on new message
+  }, [isOpen, messages]);
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -41,7 +38,7 @@ const ChatWidget = () => {
     setIsTyping(true);
 
     try {
-      const response = await api.post('ai/chat/', { message: userMsg.text });
+      const response = await api.post('ai-chat/', { message: userMsg.text });
       const botMsg = { sender: 'bot', text: response.data.response };
       setMessages((prev) => [...prev, botMsg]);
     } catch (error) {
@@ -51,6 +48,11 @@ const ChatWidget = () => {
       setIsTyping(false);
     }
   };
+
+ 
+  // Logic: Hide on Login, Register, and Landing Page ('/')
+  const hideOnRoutes = ['/login', '/register', '/'];
+  if (hideOnRoutes.includes(location.pathname)) return null;
 
   return (
     <div style={{ position: 'fixed', bottom: '30px', left: '30px', zIndex: 99999, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>

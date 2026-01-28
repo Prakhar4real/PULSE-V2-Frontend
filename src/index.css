@@ -1,15 +1,3 @@
-:root {
-  /* --- LIGHT MODE (Default) --- */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f5f5f7; /* Apple-style light gray */
-  --bg-card: #ffffff;
-  --text-primary: #1d1d1f; /* Soft black, not pure black */
-  --text-secondary: #86868b;
-  --accent: #007aff; /* Apple Blue */
-  --border: #d2d2d7;
-  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
 [data-theme='dark'] {
   /* --- DARK MODE --- */
   --bg-primary: #000000;

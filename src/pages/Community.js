@@ -1,146 +1,166 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
-import { FiBell, FiCalendar, FiAlertCircle, FiInfo } from 'react-icons/fi';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+import { FiMap, FiAlertTriangle, FiLoader } from 'react-icons/fi';
 
-const Community = () => {
-    const [notices, setNotices] = useState([]);
-    const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchNotices();
-    }, []);
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+    iconUrl: require('leaflet/dist/images/marker-icon.png'),
+    shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+});
 
-    const fetchNotices = async () => {
-        try {
-            const token = localStorage.getItem('access');
-           
-            const res = await api.get('notices/', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setNotices(res.data);
-        } catch (error) {
-            console.error("Failed to fetch notices", error);
-            
-            setNotices([
-                { id: 1, title: "Severe Weather Warning", content: "Heavy rainfall expected in Gomti Nagar area. Please avoid underpasses.", is_pinned: true, created_at: "2026-01-26T10:00:00", author_name: "City Admin" },
-                { id: 2, title: "Metro Line Maintenance", content: "The Red Line will be closed this Sunday for scheduled repairs.", is_pinned: false, created_at: "2026-01-25T09:30:00", author_name: "Transport Dept" },
-                { id: 3, title: "New Recycling Guidelines", content: "Separate wet and dry waste starting next month to earn extra XP.", is_pinned: false, created_at: "2026-01-24T14:15:00", author_name: "Sanitation Dept" },
-            ]);
-        } finally {
-            setLoading(false);
-        }
-    };
+// 1. CUSTOM MARKER ICONS
+const getMarkerIcon = (status) => {
+    let color = '#ffb547'; 
+    let glowColor = 'rgba(255, 181, 71, 0.6)';
+    
+    if (status === 'verified') { 
+        color = '#007bff'; 
+        glowColor = 'rgba(0, 123, 255, 0.6)'; 
+    } 
+    if (status === 'resolved') { 
+        color = '#00d68f'; 
+        glowColor = 'rgba(0, 214, 143, 0.4)'; 
+    } 
 
-    const formatDate = (isoString) => {
-        const date = new Date(isoString);
-        return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-    };
-
-    // Separate Pinned vs Normal
-    const pinnedNotices = notices.filter(n => n.is_pinned);
-    const regularNotices = notices.filter(n => !n.is_pinned);
-
-    return (
-        <div style={styles.container}>
-            <div style={styles.header}>
-                <h1 style={{margin: 0}}>Official <span style={{color: '#2970ff'}}>Notice Board</span></h1>
-                <p style={{color: '#8b8d9d', marginTop: '5px'}}>Updates, Alerts & News from City Administration</p>
-            </div>
-
-            <div style={styles.content}>
-                {loading ? <p>Loading updates...</p> : (
-                    <>
-                        {/* --- PINNED / URGENT SECTION --- */}
-                        {pinnedNotices.length > 0 && (
-                            <div style={{marginBottom: '40px'}}>
-                                <h3 style={styles.sectionTitle}><FiAlertCircle color="#ffb547"/> Important Alerts</h3>
-                                <div style={styles.grid}>
-                                    {pinnedNotices.map(notice => (
-                                        <div key={notice.id} style={styles.pinnedCard}>
-                                            <div style={styles.pinnedBadge}>PINNED</div>
-                                            <h2 style={styles.cardTitle}>{notice.title}</h2>
-                                            <p style={styles.cardBody}>{notice.content}</p>
-                                            <div style={styles.cardFooter}>
-                                                <span style={styles.author}>📢 {notice.author_name || "Admin"}</span>
-                                                <span style={styles.date}><FiCalendar /> {formatDate(notice.created_at)}</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* --- REGULAR NOTICES --- */}
-                        <div>
-                            <h3 style={styles.sectionTitle}><FiBell color="#2970ff"/> Recent Updates</h3>
-                            <div style={styles.listContainer}>
-                                {regularNotices.map(notice => (
-                                    <div key={notice.id} style={styles.regularCard}>
-                                        <div style={{flex: 1}}>
-                                            <h3 style={styles.regularTitle}>{notice.title}</h3>
-                                            <p style={styles.regularBody}>{notice.content}</p>
-                                        </div>
-                                        <div style={styles.regularMeta}>
-                                            <span style={styles.date}>{formatDate(notice.created_at)}</span>
-                                            <span style={styles.tag}>Official</span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </>
-                )}
-            </div>
-        </div>
-    );
+    return L.divIcon({
+        className: 'custom-pin',
+        html: `<div style="
+            width: 12px; height: 12px; background: ${color}; 
+            border-radius: 50%; box-shadow: 0 0 10px ${glowColor}, 0 0 20px ${glowColor};
+            border: 2px solid white;"></div>`,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+        popupAnchor: [0, -10]
+    });
 };
 
-const styles = {
-    container: { minHeight: '100vh', backgroundColor: '#0b0c15', color: 'white', padding: '40px 20px' },
-    header: { textAlign: 'center', marginBottom: '50px' },
-    content: { maxWidth: '900px', margin: '0 auto' },
-    
-    sectionTitle: { display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.2rem', color: '#8b8d9d', marginBottom: '20px', borderBottom: '1px solid #1f2029', paddingBottom: '10px' },
-    
-    grid: { display: 'grid', gap: '20px' },
-    
-    // Pinned Card Styles (High Visibility)
-    pinnedCard: { 
-        backgroundColor: 'rgba(255, 181, 71, 0.05)', // Very faint yellow tint
-        border: '1px solid #ffb547', 
-        borderRadius: '15px', 
-        padding: '25px', 
-        position: 'relative' 
-    },
-    pinnedBadge: {
-        position: 'absolute', top: '20px', right: '20px',
-        backgroundColor: '#ffb547', color: 'black',
-        fontSize: '0.7rem', fontWeight: 'bold',
-        padding: '4px 8px', borderRadius: '4px'
-    },
-    cardTitle: { marginTop: 0, color: '#ffb547', fontSize: '1.5rem' },
-    cardBody: { fontSize: '1.1rem', lineHeight: '1.6', color: '#e0e0e0' },
-    cardFooter: { marginTop: '20px', display: 'flex', gap: '20px', fontSize: '0.9rem', color: '#8b8d9d' },
+// 2. 12-HOUR AUTO-HIDE LOGIC
+const shouldShowMarker = (report) => {
+    if (report.status !== 'resolved') return true; // Always show Pending/Verified
 
-    // Regular List Styles
-    listContainer: { display: 'flex', flexDirection: 'column', gap: '15px' },
-    regularCard: {
-        backgroundColor: '#151621',
-        border: '1px solid #2a2b3d',
-        borderRadius: '12px',
-        padding: '20px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        transition: 'transform 0.2s',
-    },
-    regularTitle: { margin: '0 0 8px 0', fontSize: '1.1rem', color: 'white' },
-    regularBody: { margin: 0, color: '#8b8d9d', fontSize: '0.95rem' },
-    regularMeta: { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '5px', minWidth: '100px', textAlign: 'right' },
+    const resolvedDate = new Date(report.updated_at || report.created_at);
+    const now = new Date();
+    const diffInHours = (now - resolvedDate) / (1000 * 60 * 60);
+
+    return diffInHours < 12; // Hide if resolved > 12h ago
+};
+
+const Community = () => {
+    const [reports, setReports] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     
-    author: { fontWeight: 'bold', color: 'white' },
-    date: { display: 'flex', alignItems: 'center', gap: '5px' },
-    tag: { fontSize: '0.7rem', backgroundColor: '#2a2b3d', padding: '2px 8px', borderRadius: '4px', color: '#2970ff' }
+    // Default Center (Lucknow)
+    const defaultCenter = [26.8467, 80.9462];
+
+    useEffect(() => {
+        const fetchGlobalData = async () => {
+            try {
+                const res = await api.get('reports/'); 
+                setReports(res.data);
+            } catch (err) {
+                console.error("Map Error:", err);
+                setError("Unable to load live data.");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchGlobalData();
+    }, []);
+
+    const visibleReports = reports.filter(r => {
+        const lat = parseFloat(r.latitude);
+        const lng = parseFloat(r.longitude);
+        return !isNaN(lat) && !isNaN(lng) && shouldShowMarker(r);
+    });
+
+    return (
+        <div style={{padding: '20px', background: '#050509', minHeight: '100vh', color:'white'}}>
+            
+            <div style={{textAlign: 'center', marginBottom: '30px', paddingTop: '40px'}}>
+                <h1 style={{fontSize: '2.5rem', fontWeight: 'bold', display:'flex', alignItems:'center', justifyContent:'center', gap:'10px'}}>
+                    <FiMap color="#2970ff"/> Live City Intel
+                </h1>
+                <p style={{color: '#888'}}>
+                    Real-time incidents reported by citizens. 
+                    <span style={{color:'#00d68f', marginLeft:'8px', fontSize:'0.85rem'}}>
+                        
+                    </span>
+                </p>
+                
+                {error && (
+                    <div style={{marginTop: '20px', color: '#ff4d4d', background: 'rgba(255, 77, 77, 0.1)', padding: '10px', borderRadius:'8px', display:'inline-block'}}>
+                        <FiAlertTriangle style={{marginRight: '8px'}}/> {error}
+                    </div>
+                )}
+            </div>
+
+            
+            <div style={{
+                height: '650px', 
+                borderRadius: '16px', 
+                overflow: 'hidden', 
+                border: '2px solid #2970ff',  // Blue Border
+                boxShadow: '0 0 20px rgba(41, 112, 255, 0.3)', // Blue Glow
+                marginBottom: '40px', 
+                position: 'relative'
+            }}>
+                
+                
+                <div style={{
+                    position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+                    backgroundImage: 'linear-gradient(rgba(41, 112, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(41, 112, 255, 0.1) 1px, transparent 1px)',
+                    backgroundSize: '40px 40px', 
+                    pointerEvents: 'none', 
+                    zIndex: 400, 
+                    boxShadow: 'inset 0 0 50px rgba(0,0,0,0.5)'
+                }}></div>
+
+                {loading ? (
+                    <div style={{height: '100%', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#151621'}}>
+                        <div style={{textAlign: 'center', color: '#2970ff'}}>
+                            <FiLoader size={40} className="spin-animation" />
+                            <p style={{marginTop:'15px'}}>Scanning Grid...</p>
+                        </div>
+                    </div>
+                ) : (
+                    <MapContainer center={defaultCenter} zoom={13} style={{ height: "100%", width: "100%" }}>
+                        <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+                        
+                        {visibleReports.map((report) => (
+                            <Marker 
+                                key={report.id} 
+                                position={[parseFloat(report.latitude), parseFloat(report.longitude)]}
+                                icon={getMarkerIcon(report.status)}
+                            >
+                                <Popup>
+                                    <div style={{textAlign:'center'}}>
+                                        <strong style={{fontSize:'1rem'}}>{report.title}</strong>
+                                        <div style={{
+                                            marginTop:'5px', padding:'4px 8px', borderRadius:'4px',
+                                            backgroundColor: report.status === 'resolved' ? '#00d68f' : report.status === 'verified' ? '#007bff' : '#ffb547',
+                                            color:'white', fontSize:'0.75rem', fontWeight:'bold', textTransform:'uppercase'
+                                        }}>
+                                            {report.status}
+                                        </div>
+                                        <p style={{margin:'5px 0 0 0', fontSize:'0.8rem', color:'#666'}}>
+                                            {new Date(report.created_at).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                </Popup>
+                            </Marker>
+                        ))}
+                    </MapContainer>
+                )}
+            </div>
+            <style>{`.spin-animation { animation: spin 2s linear infinite; } @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+        </div>
+    );
 };
 
 export default Community;

@@ -13,7 +13,7 @@ import Documentation from './pages/Documentation';
 import ReportIssue from './pages/ReportIssue';
 import Community from './pages/Community'; 
 import History from './pages/History';
-
+import NoticeBoard from './pages/NoticeBoard';
 // Components
 import ChatWidget from './components/ChatWidget';
 import Navbar from './components/Navbar'; 
@@ -66,6 +66,7 @@ function App() {
           <Route path="/docs/:type" element={<Documentation />} />
           <Route path="/report-issue" element={<ReportIssue />} />
           <Route path="/history" element={<History />} />
+          <Route path="/notices" element={<NoticeBoard />} />
         </Routes>
       </Layout>
     </Router>

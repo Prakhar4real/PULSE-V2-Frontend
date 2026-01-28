@@ -1,17 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
-import { FiCalendar, FiMapPin, FiCheckCircle, FiClock, FiAlertCircle, FiXCircle } from 'react-icons/fi';
+import { FiCheckCircle, FiAlertCircle, FiMapPin, FiCalendar, FiExternalLink, FiImage, FiClock } from 'react-icons/fi';
+import '../styles/History.css';
 
-// --- HELPER: GET USER ID FROM TOKEN ---
-const getUserIdFromToken = () => {
-    const token = localStorage.getItem('access');
-    if (!token) return null;
-    try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        return payload.user_id; 
-    } catch (e) {
-        return null;
-    }
+// HELPER: Generate Unique Case ID
+const generateCaseId = (id) => {
+    const uniquePart = (id + 10000).toString(16).toUpperCase(); 
+    return `CASE-${uniquePart}`;
 };
 
 const getImageUrl = (path) => {
@@ -19,178 +14,164 @@ const getImageUrl = (path) => {
     return path.startsWith('http') ? path : `http://127.0.0.1:8000${path}`;
 };
 
+
+const getUserIdFromToken = () => {
+    const token = localStorage.getItem('access');
+    if (!token) return null;
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.user_id; 
+    } catch (e) {
+        console.error("Token decode failed", e);
+        return null;
+    }
+};
+
 const History = () => {
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchHistory = async () => {
-            const token = localStorage.getItem('access');
-            const config = { headers: { Authorization: `Bearer ${token}` } };
-            
-            try {
-                // 1. Get the Real User ID
-                const realUserId = getUserIdFromToken();
-
-                // 2. Fetch All Reports
-                const reportRes = await api.get('reports/', config);
-                const allData = reportRes.data;
-
-                // 3. Filter only MY reports
-                const myReports = allData.filter(r => r.user == realUserId);
-                
-                // 4. Sort by Newest First
-                setReports(myReports.sort((a, b) => b.id - a.id));
-
-            } catch (err) {
-                console.error("Failed to load history", err);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchHistory();
     }, []);
 
-    const getStatusConfig = (status) => {
-        switch(status) {
-            case 'resolved': return { color: '#00d68f', icon: <FiCheckCircle /> };
-            case 'verified': return { color: '#007bff', icon: <FiCheckCircle /> };
-            case 'rejected': return { color: '#ff4d4d', icon: <FiXCircle /> };
-            default: return { color: '#ffb547', icon: <FiClock /> }; 
+    const fetchHistory = async () => {
+        try {
+            const token = localStorage.getItem('access');
+            const res = await api.get('reports/', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            
+            const userId = getUserIdFromToken();
+            console.log("My User ID:", userId); // Debug Log
+
+            
+            const myReports = res.data.filter(r => {
+                // Handle case where r.user might be an object or an ID
+                const reportUserId = typeof r.user === 'object' ? r.user.id : r.user;
+                return reportUserId == userId;
+            });
+
+            setReports(myReports.sort((a, b) => b.id - a.id)); // Newest first
+        } catch (error) {
+            console.error("Failed to load history", error);
+        } finally {
+            setLoading(false);
         }
     };
 
-    if (loading) return <div style={{padding: '50px', color: 'white', textAlign: 'center'}}>Loading Logbook...</div>;
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'resolved': return '#00d68f';
+            case 'verified': return '#007bff';
+            default: return '#ffb547';
+        }
+    };
 
     return (
-        <div style={styles.container}>
-            <div style={styles.header}>
-                <h1 style={styles.title}>Submission History</h1>
-                <p style={styles.subtitle}>
-                    You have contributed <span style={{color: '#2970ff', fontWeight: 'bold'}}>{reports.length}</span> reports to the city.
-                </p>
-            </div>
+        <div className="history-container">
+            <h1 style={{ fontSize: '2.5rem', marginBottom: '10px' }}>Submission History</h1>
+            <p style={{ color: '#8b8d9d', marginBottom: '40px' }}>
+                You have contributed <span style={{ color: '#2970ff', fontWeight: 'bold' }}>{reports.length}</span> reports to the city.
+            </p>
 
-            <div style={styles.listContainer}>
-                {reports.length === 0 ? (
-                    <div style={styles.emptyState}>
-                        <h3>No records found</h3>
-                        <p>Once you report an issue, it will appear here permanently.</p>
-                    </div>
-                ) : (
-                    reports.map(report => {
-                        const statusConfig = getStatusConfig(report.status);
-                        return (
-                            <div key={report.id} style={styles.row}>
-                                
-                                {/* 1. Image Thumbnail */}
-                                <div style={styles.imgContainer}>
-                                    {report.image ? (
-                                        <img src={getImageUrl(report.image)} alt="Evidence" style={styles.img} />
-                                    ) : (
-                                        <div style={styles.noImg}><FiAlertCircle size={24} color="#666"/></div>
-                                    )}
-                                </div>
-
-                                {/* 2. Details & Feedback */}
-                                <div style={{flex: 1}}>
-                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'start'}}>
-                                        <h3 style={styles.reportTitle}>{report.title}</h3>
-                                        <span style={{fontSize: '0.8rem', color: '#666'}}>ID: #{report.id}</span>
+            {loading ? <p style={{textAlign:'center', color:'#888'}}>Loading records...</p> : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    {reports.map((report) => (
+                        <div key={report.id} className="history-card">
+                            
+                            {/* --- 1. USER UPLOADED PHOTO (CLICKABLE) --- */}
+                            <div className="history-img-container">
+                                <a href={getImageUrl(report.image)} target="_blank" rel="noopener noreferrer">
+                                    <img 
+                                        src={getImageUrl(report.image)} 
+                                        alt="Evidence" 
+                                    />
+                                    <div className="history-img-overlay">
+                                        <FiExternalLink color="white" size={24} />
                                     </div>
-                                    
-                                    <div style={styles.metaRow}>
-                                        <span style={styles.metaItem}>
-                                            <FiMapPin color="#2970ff"/> {report.location || "No GPS Data"}
-                                        </span>
-                                        {report.created_at && (
-                                            <span style={styles.metaItem}>
-                                                <FiCalendar color="#2970ff"/> {new Date(report.created_at).toLocaleDateString()}
-                                            </span>
-                                        )}
-                                    </div>
-                                    
-                                    <p style={styles.desc}>
-                                        {report.description 
-                                            ? (report.description.length > 120 ? report.description.substring(0, 120) + "..." : report.description)
-                                            : "No description provided."}
-                                    </p>
-
-                                    
-                                    {report.feedback && (
-                                        <div style={{marginTop: '12px', padding: '10px', background: 'rgba(0, 214, 143, 0.1)', borderLeft: '3px solid #00d68f', borderRadius: '4px', fontSize: '0.9rem'}}>
-                                            <span style={{color: '#00d68f', fontWeight: 'bold'}}>ADMIN:</span> <span style={{color: '#e0e0e0'}}>{report.feedback}</span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* 3. Status Badge & Proof */}
-                                <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', minWidth: '120px'}}>
-                                    <div style={{
-                                        ...styles.statusBadge, 
-                                        borderColor: statusConfig.color, 
-                                        color: statusConfig.color,
-                                        backgroundColor: `${statusConfig.color}15`
-                                    }}>
-                                        {statusConfig.icon} 
-                                        <span>{report.status.toUpperCase()}</span>
-                                    </div>
-
-                                    
-                                    {report.resolved_image && (
-                                        <a href={getImageUrl(report.resolved_image)} target="_blank" rel="noopener noreferrer" style={{fontSize: '0.85rem', color: '#00d68f', textDecoration: 'underline', cursor: 'pointer', fontWeight: '500'}}>
-                                            View Proof
-                                        </a>
-                                    )}
-                                </div>
+                                </a>
                             </div>
-                        );
-                    })
-                )}
-            </div>
+
+                            {/* --- MIDDLE CONTENT --- */}
+                            <div className="history-content">
+                                <div className="history-header">
+                                    <h3 className="history-title">{report.title}</h3>
+                                    
+                                    {/* 2. SHOW CASE ID */}
+                                    <span className="history-case-id">
+                                        {generateCaseId(report.id)}
+                                    </span>
+                                </div>
+
+                                <div className="history-meta">
+                                    <span className="meta-item">
+                                        <FiMapPin /> {report.location || "Lucknow, India"}
+                                    </span>
+                                    <span className="meta-item">
+                                        <FiCalendar /> {new Date(report.created_at).toLocaleDateString()}
+                                    </span>
+                                </div>
+
+                                <p className="history-desc">
+                                    {report.description || "No additional details provided."}
+                                </p>
+
+                                {/* --- ADMIN FEEDBACK SECTION --- */}
+                                {report.feedback && (
+                                    <div className="admin-feedback-box">
+                                        <span className="admin-label">
+                                            Admin Feedback:
+                                        </span>
+                                        <p style={{ margin: '5px 0', color: '#e0e0e0', fontSize: '0.9rem' }}>
+                                            {report.feedback}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* --- RIGHT STATUS & PROOF --- */}
+                            <div className="history-actions">
+                                <div className="status-badge" style={{
+                                    borderColor: getStatusColor(report.status),
+                                    color: getStatusColor(report.status)
+                                }}>
+                                    {report.status === 'resolved' ? <FiCheckCircle /> : 
+                                     report.status === 'verified' ? <FiCheckCircle /> : <FiClock />}
+                                    {report.status}
+                                </div>
+
+                                {/*  3.VIEW PROOF BUTTON */}
+                                {report.resolved_image && (
+                                    <a 
+                                        href={getImageUrl(report.resolved_image)} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="proof-btn"
+                                    >
+                                        <FiImage /> View Proof
+                                    </a>
+                                )}
+                            </div>
+
+                        </div>
+                    ))}
+                    
+                    {reports.length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '50px', color: '#666', border: '2px dashed #333', borderRadius: '16px' }}>
+                            <p>No reports found.</p>
+                            <button 
+                                onClick={() => window.location.href='/new-report'}
+                                style={{marginTop: '10px', background: 'transparent', border:'1px solid #2970ff', color: '#2970ff', padding: '8px 16px', borderRadius: '6px', cursor:'pointer'}}
+                            >
+                                Create First Report
+                            </button>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
-};
-
-const styles = {
-    container: {
-        padding: '40px 10%', 
-        minHeight: '100vh',
-        backgroundColor: '#050509',
-        color: 'white',
-        fontFamily: "'Inter', sans-serif"
-    },
-    header: { marginBottom: '40px', borderBottom: '1px solid #1f2029', paddingBottom: '20px' },
-    title: { fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '10px' },
-    subtitle: { color: '#888', fontSize: '1.1rem' },
-    listContainer: { display: 'flex', flexDirection: 'column', gap: '20px' },
-    emptyState: { 
-        textAlign: 'center', color: '#666', padding: '60px', 
-        border: '2px dashed #1f2029', borderRadius: '16px' 
-    },
-    row: {
-        display: 'flex', alignItems: 'start', gap: '25px', 
-        padding: '25px', backgroundColor: '#151621',
-        borderRadius: '16px', border: '1px solid #1f2029',
-        transition: 'all 0.2s ease',
-        boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
-    },
-    imgContainer: {
-        width: '100px', height: '100px', borderRadius: '12px', overflow: 'hidden', flexShrink: 0,
-        backgroundColor: '#000', border: '1px solid #2a2b3d'
-    },
-    img: { width: '100%', height: '100%', objectFit: 'cover' },
-    noImg: { width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-    reportTitle: { margin: '0 0 8px 0', fontSize: '1.3rem', color: '#fff' },
-    metaRow: { display: 'flex', gap: '20px', color: '#aaa', fontSize: '0.9rem', marginBottom: '12px' },
-    metaItem: { display: 'flex', alignItems: 'center', gap: '6px' },
-    desc: { margin: 0, color: '#888', fontSize: '0.95rem', lineHeight: '1.5' },
-    statusBadge: {
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '5px',
-        padding: '10px 15px', borderRadius: '12px',
-        fontWeight: 'bold', fontSize: '0.8rem', letterSpacing: '1px',
-        border: '1px solid', width: '100%', textAlign: 'center'
-    }
 };
 
 export default History;

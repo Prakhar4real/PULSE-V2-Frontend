@@ -48,7 +48,7 @@ const IncidentPin = ({ position, setPosition, setAddress }) => {
 };
 
 // --- 3. BLUE DOT ---
-// We use CircleMarker because it is SVG-based and CANNOT fail to load like an image.
+// using CircleMarker because it is SVG-based and CANNOT fail to load like an image.
 const UserLocationDot = ({ userLocation }) => {
     const map = useMap();
     
@@ -193,10 +193,10 @@ const NewReport = () => {
                             <MapContainer center={position} zoom={15} style={{ height: '100%', width: '100%' }}>
                                 <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
                                 
-                                {/* 🔵 BLUE DOT (Code Generated) */}
+                                {/* BLUE DOT (Code Generated) */}
                                 <UserLocationDot userLocation={userLocation} />
                                 
-                                {/* 🔴 RED PIN (Image) */}
+                                {/* RED PIN (Image) */}
                                 <IncidentPin position={position} setPosition={setPosition} setAddress={setAddress} />
                             
                             </MapContainer>

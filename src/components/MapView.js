@@ -2,8 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, CircleMarker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { ThemeContext } from '../context/ThemeContext';
-
-// --- ICON FIX ---
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
@@ -67,7 +65,7 @@ const MapView = ({ reports }) => {
         boxShadow: 'var(--shadow)'
     }}>
       
-      {/* BUTTON IS NOW ALWAYS VISIBLE - NO CONDITIONS */}
+      
       <button 
         onClick={handleLocateMe} 
         style={{
@@ -98,10 +96,10 @@ const MapView = ({ reports }) => {
           url={theme === 'dark' ? darkTiles : lightTiles}
         />
 
-        {/* If we have user location, fly there */}
+        
         {userLocation && <RecenterMap center={userLocation} />}
 
-        {/* 🔵 BLUE DOT (You) */}
+        {/* 🔵 BLUE DOT (user location) */}
         {userLocation && (
             <CircleMarker 
                 center={userLocation} 
@@ -112,7 +110,7 @@ const MapView = ({ reports }) => {
             </CircleMarker>
         )}
 
-        {/* 📍 REPORT PINS (Incidents) */}
+        {/*REPORT PINS (Incidents) */}
         {reports.map((report) => (
           (report.latitude && report.longitude) && (
             <Marker 

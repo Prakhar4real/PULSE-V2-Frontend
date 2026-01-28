@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Footer from '../components/Footer'; // ✅ Re-using your new Footer
-import { FiActivity, FiShield, FiAward, FiArrowRight } from 'react-icons/fi';
+import Footer from '../components/Footer'; 
+import { FiActivity, FiShield, FiAward, FiArrowRight, FiMap } from 'react-icons/fi';
 
 const LandingPage = () => {
     const navigate = useNavigate();
@@ -10,13 +10,8 @@ const LandingPage = () => {
         <div style={styles.container}>
             {/* --- HERO SECTION --- */}
             <header style={styles.hero}>
-                <nav style={styles.nav}>
-                    <h1 style={styles.logo}>PULSE<span style={{color: '#2970ff'}}>.</span></h1>
-                    <div style={styles.navButtons}>
-                        <button onClick={() => navigate('/login')} style={styles.loginBtn}>Login</button>
-                        <button onClick={() => navigate('/register')} style={styles.ctaBtn}>Join Now</button>
-                    </div>
-                </nav>
+                
+                
 
                 <div style={styles.heroContent}>
                     <h1 style={styles.heroTitle}>
@@ -27,15 +22,21 @@ const LandingPage = () => {
                         PULSE bridges the gap between citizens and authorities. 
                         Report incidents, earn XP, and watch your city transform in real-time.
                     </p>
+                    
+                    {/* UPDATED BUTTONS */}
                     <div style={styles.heroButtons}>
+                        {/* 1. Primary Action: Register */}
                         <button onClick={() => navigate('/register')} style={styles.mainCta}>
                             Get Started <FiArrowRight />
                         </button>
-                        <button onClick={() => navigate('/login')} style={styles.secondaryCta}>
-                            View Dashboard
+                        
+                        {/* 2. Secondary Action: Public Map */}
+                        <button onClick={() => navigate('/community')} style={styles.secondaryCta}>
+                            <FiMap style={{marginRight:'8px'}}/> View Live Map
                         </button>
                     </div>
                 </div>
+
             </header>
 
             {/* --- FEATURES SECTION --- */}
@@ -48,7 +49,7 @@ const LandingPage = () => {
                 <div style={styles.featureCard}>
                     <div style={styles.iconBox}><FiShield size={30} color="#00d68f"/></div>
                     <h3>AI Verification</h3>
-                    <p>Google Gemini AI verifies every report to ensure accuracy and trust.</p>
+                    <p> AI verifies every report to ensure accuracy and trust.</p>
                 </div>
                 <div style={styles.featureCard}>
                     <div style={styles.iconBox}><FiAward size={30} color="#ffb547"/></div>
@@ -57,7 +58,6 @@ const LandingPage = () => {
                 </div>
             </section>
 
-            {/* --- FOOTER --- */}
             <Footer />
         </div>
     );
@@ -80,43 +80,7 @@ const styles = {
         justifyContent: 'center',
         background: 'radial-gradient(circle at 50% 50%, #151621 0%, #050509 100%)',
     },
-    nav: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        padding: '30px 80px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        boxSizing: 'border-box',
-    },
-    logo: {
-        fontSize: '2rem',
-        fontWeight: '900',
-        margin: 0,
-    },
-    navButtons: {
-        display: 'flex',
-        gap: '20px',
-    },
-    loginBtn: {
-        background: 'none',
-        border: 'none',
-        color: '#ccc',
-        fontSize: '1rem',
-        cursor: 'pointer',
-        fontWeight: '500',
-    },
-    ctaBtn: {
-        padding: '10px 24px',
-        borderRadius: '50px',
-        border: 'none',
-        backgroundColor: '#2970ff',
-        color: 'white',
-        fontWeight: 'bold',
-        cursor: 'pointer',
-    },
+    
     heroContent: {
         maxWidth: '800px',
         marginTop: '60px',
@@ -163,9 +127,11 @@ const styles = {
         fontWeight: 'bold',
         borderRadius: '12px',
         border: '1px solid #333',
-        backgroundColor: 'transparent',
+        backgroundColor: 'rgba(255,255,255,0.05)',
         color: 'white',
         cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
     },
     featuresSection: {
         padding: '80px',
@@ -173,9 +139,11 @@ const styles = {
         justifyContent: 'space-between',
         gap: '40px',
         backgroundColor: '#0b0c15',
+        flexWrap: 'wrap', 
     },
     featureCard: {
         flex: 1,
+        minWidth: '250px',
         padding: '30px',
         backgroundColor: '#151621',
         borderRadius: '20px',

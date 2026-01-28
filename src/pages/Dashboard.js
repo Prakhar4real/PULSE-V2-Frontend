@@ -6,20 +6,18 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, CircleMarker } from 're
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import 'leaflet.heat'; 
-import { LineChart, Line, ResponsiveContainer, XAxis } from 'recharts'; 
-import { FiWind, FiSun, FiMapPin, FiUser, FiCrosshair, FiClock } from 'react-icons/fi'; 
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { FiWind, FiSun, FiMapPin, FiUser, FiCrosshair, FiClock, FiExternalLink } from 'react-icons/fi'; 
 import '../styles/DashboardNew.css';
 
+// --- HELPER FUNCTIONS ---
 const getUserIdFromToken = () => {
     const token = localStorage.getItem('access');
     if (!token) return null;
     try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         return payload.user_id; 
-    } catch (e) {
-        console.error("Token decode failed", e);
-        return null;
-    }
+    } catch (e) { return null; }
 };
 
 const getImageUrl = (path) => {
@@ -34,23 +32,46 @@ const parseCoords = (report) => {
     return null; 
 };
 
+const generateCaseId = (id) => {
+    if (!id) return 'PENDING';
+    const uniquePart = (id + 10000).toString(16).toUpperCase(); 
+    return `CASE-${uniquePart}`;
+};
+
+const shouldShowMarker = (report) => {
+    if (report.status !== 'resolved') return true;
+    const resolvedDate = new Date(report.updated_at || report.created_at);
+    const now = new Date();
+    const diffInHours = (now - resolvedDate) / (1000 * 60 * 60);
+    return diffInHours < 12;
+};
+
+// --- MAP COMPONENTS ---
+
 const RecenterMap = ({ center }) => {
     const map = useMap();
     useEffect(() => {
-        if (center) map.flyTo([center.lat, center.lng], 14, { animate: true, duration: 1.5 });
-    }, [center]);
+        if (center && center.lat && center.lng) {
+            map.flyTo([center.lat, center.lng], 15, { animate: true, duration: 1.5 });
+        }
+    }, [center, map]);
     return null;
 };
 
-const AutoFitBounds = ({ reports }) => {
+
+const AutoFitBounds = ({ reports, disabled }) => {
     const map = useMap();
     useEffect(() => {
-        const validCoords = reports.map(r => parseCoords(r)).filter(c => c !== null);
+        if (disabled) return; 
+
+        const visibleReports = reports.filter(shouldShowMarker);
+        const validCoords = visibleReports.map(r => parseCoords(r)).filter(c => c !== null);
+        
         if (validCoords.length > 0) {
             const bounds = L.latLngBounds(validCoords);
             map.fitBounds(bounds, { padding: [80, 80] });
         }
-    }, [reports, map]);
+    }, [reports, map, disabled]); // Add disabled dependency
     return null;
 };
 
@@ -59,7 +80,7 @@ const TrafficHeatmap = ({ reports }) => {
     useEffect(() => {
         const trafficPoints = reports
             .filter(r => {
-                if (r.status === 'resolved') return false;
+                if (!shouldShowMarker(r)) return false;
                 const isTrafficCategory = r.category && r.category.toLowerCase() === 'traffic';
                 const isTrafficTitle = r.title && r.title.toLowerCase().includes('traffic');
                 return isTrafficCategory || isTrafficTitle;
@@ -102,97 +123,143 @@ const UserLocationDot = ({ userLocation }) => {
     );
 };
 
-const LocateButton = ({ onLocate }) => (
-    <button onClick={onLocate} style={styles.locateBtn}><FiCrosshair /> Locate Me</button>
-);
-
+// --- MAIN DASHBOARD ---
 const Dashboard = () => {
     const navigate = useNavigate();
     const [mapCenter, setMapCenter] = useState({ lat: 26.8467, lng: 80.9462 }); 
     const [userLocation, setUserLocation] = useState(null); 
     const [user, setUser] = useState(null);
     const [reports, setReports] = useState([]);
+    const [globalReports, setGlobalReports] = useState([]); 
     const [leaderboard, setLeaderboard] = useState([]); 
     const [loading, setLoading] = useState(true);
-    const [weather, setWeather] = useState({ temp: '--', aqi: '--', aqiStatus: 'Loading...' });
-    const [locationName, setLocationName] = useState('Detecting City...');
-    const [trafficData, setTrafficData] = useState([]);
+    const [weather, setWeather] = useState({ temp: '--', aqi: '--', aqiStatus: 'Syncing...' });
+    const [locationName, setLocationName] = useState('Locating...');
+
+    
+    const [manualFocus, setManualFocus] = useState(false);
 
     const handleLocateMe = () => {
-        if (!navigator.geolocation) return;
-        navigator.geolocation.getCurrentPosition((pos) => {
-            const { latitude, longitude } = pos.coords;
-            const newUserLoc = { lat: latitude, lng: longitude };
-            setUserLocation(newUserLoc); 
-            setMapCenter({ ...newUserLoc }); 
-            fetchRealWeather(latitude, longitude);
-        }, (err) => console.error(err), { enableHighAccuracy: true });
+        if (!navigator.geolocation) {
+            alert("Geolocation not supported");
+            return;
+        }
+
+        // 1. Disable Auto-Fit so it doesn't zoom back out
+        setManualFocus(true);
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const { latitude, longitude } = pos.coords;
+                const newUserLoc = { lat: latitude, lng: longitude };
+                
+                setUserLocation(newUserLoc); 
+                setMapCenter(newUserLoc); // Triggers RecenterMap
+                
+                fetchRealWeather(latitude, longitude);
+            }, 
+            (err) => {
+                console.error("GPS Error:", err);
+                alert("Location access denied.");
+            }, 
+            { enableHighAccuracy: true }
+        );
     };
 
-    useEffect(() => {
-        fetchAllData();
-        fetchTrafficStats();
-        handleLocateMe();
-    }, []);
+    useEffect(() => { fetchAllData(); }, []); // Removed handleLocateMe from initial load to stop race conditions
 
     const fetchAllData = async () => {
         const token = localStorage.getItem('access');
         const config = { headers: { Authorization: `Bearer ${token}` } };
-        
         setLoading(true);
-
         try {
             const realUserId = getUserIdFromToken();
-            console.log("Real User ID from Token:", realUserId);
-
             const userRes = await api.get('user/profile/', config);
             setUser(userRes.data);
-
             const reportRes = await api.get('reports/', config);
             const allData = reportRes.data;
-
+            setGlobalReports(allData); 
             const myReports = allData.filter(r => {
                 if (realUserId && r.user == realUserId) return true;
                 return false;
             });
-
-            console.log("Filtered Reports:", myReports.length);
-            
-            const sortedMyReports = myReports.sort((a, b) => b.id - a.id);
-            setReports(sortedMyReports);
-
+            setReports(myReports.sort((a, b) => b.id - a.id)); 
             const lbRes = await api.get('leaderboard/', config);
             setLeaderboard(lbRes.data);
+            
+            // Initial Locate (Only runs once safely)
+            handleLocateMe();
 
         } catch (e) { console.error("Data Load Failed", e); }
         setLoading(false);
     };
 
-    const fetchTrafficStats = async () => {
+    const fetchRealWeather = async (lat, lon) => {
         try {
-            const token = localStorage.getItem('access');
-            const res = await api.get('traffic-stats/', { headers: { Authorization: `Bearer ${token}` } });
-            setTrafficData(res.data);
-        } catch (error) {
-            setTrafficData([{ time: '10am', flow: 10 }, { time: '12pm', flow: 20 }, { time: '2pm', flow: 15 }, { time: '4pm', flow: 40 }]);
+            const geoRes = await axios.get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+            const address = geoRes.data.address;
+            const city = address.city || address.town || address.village || "Lucknow";
+            setLocationName(city);
+
+            const weatherRes = await axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+            const aqiRes = await axios.get(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi`);
+            
+            setWeather({ 
+                temp: Math.round(weatherRes.data.current_weather.temperature), 
+                aqi: aqiRes.data.current.us_aqi, 
+                aqiStatus: aqiRes.data.current.us_aqi > 100 ? "Unhealthy" : "Good" 
+            });
+        } catch (e) { 
+            console.error("Weather Error", e);
+            setWeather({ temp: 28, aqi: 110, aqiStatus: "Offline" });
         }
     };
 
-    const fetchRealWeather = async (lat, lon) => {
-        try {
-            const geoRes = await axios.get(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);
-            setLocationName(geoRes.data.city || "Lucknow");
-            const weatherRes = await axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
-            const aqiRes = await axios.get(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi`);
-            setWeather({ temp: Math.round(weatherRes.data.current_weather.temperature), aqi: aqiRes.data.current.us_aqi, aqiStatus: aqiRes.data.current.us_aqi > 100 ? "Unhealthy" : "Good" });
-        } catch (e) { setWeather({ temp: 25, aqi: 150, aqiStatus: "Offline Mode" }); }
+    const getStatusCounts = () => {
+        const stats = { resolved: 0, verified: 0, pending: 0 };
+        globalReports.forEach(r => { 
+            const status = r.status ? r.status.toLowerCase() : 'pending';
+            if (stats[status] !== undefined) stats[status]++;
+            else stats.pending++;
+        });
+        return [
+            { name: 'Resolved', value: stats.resolved, color: '#00d68f' },
+            { name: 'Verified', value: stats.verified, color: '#007bff' },
+            { name: 'Pending',  value: stats.pending,  color: '#ffb547' },
+        ].filter(item => item.value > 0);
     };
 
+    const statusData = getStatusCounts();
     const getStatusColor = (s) => (s === 'resolved' ? '#00d68f' : s === 'verified' ? '#007bff' : '#ffb547');
     const getAqiColor = (aqi) => (aqi <= 50 ? '#00d68f' : aqi <= 100 ? '#ffb547' : '#ff3b3b');
-
-    const mapReports = reports.filter(r => parseCoords(r) !== null);
+    const mapReports = reports.filter(r => parseCoords(r) !== null && shouldShowMarker(r));
     const recentReports = reports.slice(0, 4);
+
+    const CustomTooltip = ({ active, payload }) => {
+        if (active && payload && payload.length) {
+            return (
+                <div style={{
+                    backgroundColor: '#151621',
+                    border: '1px solid #2970ff',
+                    padding: '12px 16px',
+                    borderRadius: '8px',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    boxShadow: '0 5px 15px rgba(0,0,0,0.8)',
+                    zIndex: 1000
+                }}>
+                    <p style={{ margin: 0, fontSize: '0.9rem', display: 'flex', alignItems: 'center' }}>
+                        <span style={{ 
+                            display: 'inline-block', width: '10px', height: '10px', 
+                            backgroundColor: payload[0].payload.fill, borderRadius: '50%', marginRight: '8px' 
+                        }}></span>
+                        {payload[0].name}: <span style={{ color: '#2970ff', marginLeft: '5px' }}>{payload[0].value}</span>
+                    </p>
+                </div>
+            );
+        }
+        return null;
+    };
 
     if (loading) return <div style={{color: 'white', padding: 40}}>Loading Command Center...</div>;
 
@@ -208,32 +275,43 @@ const Dashboard = () => {
                         backgroundImage: 'linear-gradient(rgba(41, 112, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(41, 112, 255, 0.1) 1px, transparent 1px)',
                         backgroundSize: '40px 40px', pointerEvents: 'none', zIndex: 400, boxShadow: 'inset 0 0 50px rgba(0,0,0,0.5)'
                     }}></div>
-
+                    
                     <div style={{position: 'absolute', top: 20, left: 20, zIndex: 999}}>
                         <h2 style={{margin: 0, textShadow: '0 2px 4px rgba(0,0,0,0.8)', color: 'white'}}>Command Center</h2>
                         <span style={{color: '#00d68f', fontSize: '0.9rem', fontWeight: 'bold'}}>● Live Monitoring</span>
                     </div>
-                    
+
+                    <button 
+                        onClick={handleLocateMe}
+                        style={{
+                            position: 'absolute', top: 20, right: 20, zIndex: 999,
+                            background: '#2970ff', color: 'white', border: 'none',
+                            padding: '10px 15px', borderRadius: '8px', fontWeight: 'bold',
+                            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
+                            boxShadow: '0 4px 15px rgba(0,0,0,0.5)'
+                        }}
+                    >
+                        <FiCrosshair /> Locate Me
+                    </button>
+
                     <MapContainer center={[mapCenter.lat, mapCenter.lng]} zoom={13} style={{ height: "100%", width: "100%" }} zoomControl={false}>
                         <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
                         
-                        <AutoFitBounds reports={reports} />
+                        {/* PASSING 'disabled' PROP TO STOP CONFLICT */}
+                        <AutoFitBounds reports={mapReports} disabled={manualFocus} />
+                        
                         <RecenterMap center={mapCenter} />
-                        <LocateButton onLocate={handleLocateMe} />
                         <UserLocationDot userLocation={userLocation} />
-                        <TrafficHeatmap reports={reports} /> 
-
-                        {mapReports.map((report) => {
-                            const coords = parseCoords(report);
-                            return (
-                                <Marker key={report.id} position={coords} icon={getMarkerIcon(report.status)}>
-                                    <Popup><strong>{report.title}</strong><br/>{report.status}</Popup>
-                                </Marker>
-                            );
-                        })}
+                        <TrafficHeatmap reports={mapReports} /> 
+                        {mapReports.map((report) => (
+                            <Marker key={report.id} position={parseCoords(report)} icon={getMarkerIcon(report.status)}>
+                                <Popup><strong>{report.title}</strong><br/>{report.status}</Popup>
+                            </Marker>
+                        ))}
                     </MapContainer>
                 </div>
 
+                
                 <div>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px'}}>
                         <h3 style={{color: '#8b8d9d', margin: 0}}>My Recent Reports</h3>
@@ -247,12 +325,22 @@ const Dashboard = () => {
                                 return (
                                     <div key={report.id} className="flip-card">
                                         <div className="flip-card-inner">
+                                            {/* --- FRONT OF CARD --- */}
                                             <div className="flip-card-front">
                                                 <div className="status-tag" style={{backgroundColor: getStatusColor(report.status), zIndex: 2}}>
                                                     {report.status}
                                                 </div>
+
+                                                <div style={{
+                                                    position: 'absolute', top: 10, left: 10, zIndex: 2, 
+                                                    backgroundColor: 'rgba(0,0,0,0.6)', padding: '2px 8px', borderRadius: '4px',
+                                                    fontSize: '0.65rem', color: '#fff', border: '1px solid rgba(255,255,255,0.2)',
+                                                    backdropFilter: 'blur(4px)'
+                                                }}>
+                                                    {generateCaseId(report.id)}
+                                                </div>
                                                 
-                                                <div style={{height: '120px', overflow: 'hidden', borderBottom: '1px solid #2a2b3d'}}>
+                                                <div style={{height: '120px', overflow: 'hidden', borderBottom: '1px solid #2a2b3d', position:'relative'}}>
                                                     <img 
                                                         src={getImageUrl(report.image)} 
                                                         alt="Report" 
@@ -275,9 +363,10 @@ const Dashboard = () => {
                                                 )}
                                             </div>
 
+                                            {/* --- BACK OF CARD --- */}
                                             <div className="flip-card-back">
                                                 <div className="terminal-header">
-                                                    REMARKS
+                                                    // {generateCaseId(report.id)}
                                                 </div>
                                                 
                                                 {report.feedback ? (
@@ -286,11 +375,28 @@ const Dashboard = () => {
                                                             <span style={{color: '#00d68f'}}>{">"} ADMIN:</span> {report.feedback}
                                                         </p>
                                                         {report.resolved_image && (
-                                                            <img 
-                                                                src={getImageUrl(report.resolved_image)} 
-                                                                alt="Fix Proof" 
-                                                                className="resolved-img-preview"
-                                                            />
+                                                            <div style={{position:'relative', marginTop:'10px'}}>
+                                                                <img 
+                                                                    src={getImageUrl(report.resolved_image)} 
+                                                                    alt="Fix Proof" 
+                                                                    className="resolved-img-preview"
+                                                                />
+                                                                 <a 
+                                                                    href={getImageUrl(report.resolved_image)} 
+                                                                    target="_blank" 
+                                                                    rel="noopener noreferrer"
+                                                                    onClick={(e) => e.stopPropagation()}
+                                                                    style={{
+                                                                        position: 'absolute', bottom: 5, right: 5,
+                                                                        color: '#00d68f', textDecoration: 'none',
+                                                                        backgroundColor: 'rgba(0,0,0,0.8)',
+                                                                        padding: '2px 8px', borderRadius: '4px',
+                                                                        fontSize: '0.65rem', border: '1px solid #00d68f'
+                                                                    }}
+                                                                >
+                                                                    View Proof
+                                                                </a>
+                                                            </div>
                                                         )}
                                                     </>
                                                 ) : (
@@ -300,7 +406,6 @@ const Dashboard = () => {
                                                     </div>
                                                 )}
                                             </div>
-
                                         </div>
                                     </div>
                                 );
@@ -383,14 +488,54 @@ const Dashboard = () => {
                 </div>
 
                 <div className="sidebar-card">
-                    <span>Traffic Flow</span>
-                    <div style={{height: '100px'}}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px'}}>
+                        <span style={{fontWeight: 'bold', color: '#e0e0e0'}}>System Status</span>
+                        <span style={{fontSize: '0.8rem', color: '#8b8d9d'}}>
+                            {globalReports.length} Total
+                        </span>
+                    </div>
+                    
+                    <div style={{height: '140px', position: 'relative'}}>
                         <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={trafficData}>
-                                <Line type="monotone" dataKey="flow" stroke="#2970ff" strokeWidth={3} dot={false} />
-                                <XAxis dataKey="time" hide />
-                            </LineChart>
+                            <PieChart>
+                                <Pie
+                                    data={statusData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={45}
+                                    outerRadius={60}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                    stroke="none"
+                                >
+                                    {statusData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                    ))}
+                                </Pie>
+                                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} position={{ x: 170, y: 50 }} />
+                            </PieChart>
                         </ResponsiveContainer>
+                        
+                        <div style={{
+                            position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                            textAlign: 'center', pointerEvents: 'none'
+                        }}>
+                            <div style={{fontSize: '1.5rem', fontWeight: 'bold', color: '#fff'}}>
+                                {Math.round((statusData.find(d => d.name === 'Resolved')?.value || 0) / (globalReports.length || 1) * 100)}%
+                            </div>
+                            <div style={{fontSize: '0.6rem', color: '#8b8d9d', textTransform: 'uppercase', letterSpacing: '1px'}}>
+                                Efficiency
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style={{display: 'flex', justifyContent: 'center', gap: '15px', marginTop: '5px'}}>
+                        {statusData.map((item) => (
+                            <div key={item.name} style={{display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.75rem', color: '#aaa'}}>
+                                <div style={{width: '8px', height: '8px', borderRadius: '50%', backgroundColor: item.color}}></div>
+                                {item.name}
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>

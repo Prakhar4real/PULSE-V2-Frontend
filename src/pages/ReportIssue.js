@@ -18,7 +18,7 @@ const ReportIssue = () => {
                     <p style={{color: 'white', margin: '0 0 10px 0', fontWeight: 'bold'}}>Send your bug report directly to:</p>
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '1.5rem', color: '#2970ff', fontWeight: 'bold'}}>
                         <FiMail />
-                        <a href="mailto:prakhar@pulse.city" style={{color: '#2970ff', textDecoration: 'none'}}>prakhar@pulse.city</a>
+                        <a href="mailto:prakhar@pulse.city" style={{color: '#2970ff', textDecoration: 'none'}}>prakhar.dwivedi.7707@gmail.com</a>
                     </div>
                 </div>
 

@@ -4,6 +4,9 @@ import { FaGooglePlay, FaApple } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
+    
+    const token = localStorage.getItem('access');
+
     const socialLinks = {
         linkedin: "https://www.linkedin.com/in/workprakhardwivedi/", 
         github: "https://github.com/Prakhar4real",
@@ -92,11 +95,21 @@ const Footer = () => {
                 <div style={styles.linksContainer}>
                     <div style={styles.linkColumn}>
                         <h4 style={styles.linkHeader}>Product</h4>
-                        {/* Same Tab */}
-                        <Link to="/dashboard" className="footer-link">Command Center</Link>
-                        <Link to="/missions" className="footer-link">Daily Missions</Link>
-                        <Link to="/missions" className="footer-link">Leaderboard</Link>
                         
+                        
+                        {token ? (
+                            <>
+                                <Link to="/dashboard" className="footer-link">Command Center</Link>
+                                <Link to="/missions" className="footer-link">Daily Missions</Link>
+                                <Link to="/community" className="footer-link">Community Feed</Link>
+                            </>
+                        ) : (
+                            <>
+                                <Link to="/register" className="footer-link">Create Account</Link>
+                                <Link to="/community" className="footer-link">Live City Map</Link>
+                                <Link to="/login" className="footer-link">Login</Link>
+                            </>
+                        )}
                         
                         <Link 
                             to="/report-issue" 
