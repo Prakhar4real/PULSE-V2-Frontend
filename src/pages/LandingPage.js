@@ -7,31 +7,27 @@ const LandingPage = () => {
     const navigate = useNavigate();
 
     return (
-        <div style={styles.container}>
-            {/* --- HERO SECTION --- */}
-            <header style={styles.hero}>
+        <div style={styles.container} className="landing-container">
+            {/*HERO SECTION*/}
+            <header style={styles.hero} className="hero-section">
                 
-                
-
-                <div style={styles.heroContent}>
-                    <h1 style={styles.heroTitle}>
+                <div style={styles.heroContent} className="hero-content">
+                    <h1 style={styles.heroTitle} className="hero-title">
                         The Future of <br />
                         <span style={styles.gradientText}>Urban Governance</span>
                     </h1>
-                    <p style={styles.heroSubtitle}>
+                    <p style={styles.heroSubtitle} className="hero-subtitle">
                         PULSE bridges the gap between citizens and authorities. 
                         Report incidents, earn XP, and watch your city transform in real-time.
                     </p>
                     
-                    {/* UPDATED BUTTONS */}
-                    <div style={styles.heroButtons}>
-                        {/* 1. Primary Action: Register */}
-                        <button onClick={() => navigate('/register')} style={styles.mainCta}>
+                    {/* BUTTONS */}
+                    <div style={styles.heroButtons} className="hero-buttons">
+                        <button onClick={() => navigate('/register')} style={styles.mainCta} className="cta-btn">
                             Get Started <FiArrowRight />
                         </button>
                         
-                        {/* 2. Secondary Action: Public Map */}
-                        <button onClick={() => navigate('/community')} style={styles.secondaryCta}>
+                        <button onClick={() => navigate('/community')} style={styles.secondaryCta} className="cta-btn secondary">
                             <FiMap style={{marginRight:'8px'}}/> View Live Map
                         </button>
                     </div>
@@ -39,30 +35,133 @@ const LandingPage = () => {
 
             </header>
 
-            {/* --- FEATURES SECTION --- */}
-            <section style={styles.featuresSection}>
-                <div style={styles.featureCard}>
-                    <div style={styles.iconBox}><FiActivity size={30} color="#2970ff"/></div>
+            {/*FEATURES SECTION*/}
+            <section style={styles.featuresSection} className="features-section">
+                <div style={styles.featureCard} className="feature-card">
+                    <div style={styles.iconBox} className="icon-box"><FiActivity size={30} color="#2970ff"/></div>
                     <h3>Real-Time Data</h3>
                     <p>Live incident tracking and heatmaps powered by community reports.</p>
                 </div>
-                <div style={styles.featureCard}>
-                    <div style={styles.iconBox}><FiShield size={30} color="#00d68f"/></div>
+                <div style={styles.featureCard} className="feature-card">
+                    <div style={styles.iconBox} className="icon-box"><FiShield size={30} color="#00d68f"/></div>
                     <h3>AI Verification</h3>
                     <p> AI verifies every report to ensure accuracy and trust.</p>
                 </div>
-                <div style={styles.featureCard}>
-                    <div style={styles.iconBox}><FiAward size={30} color="#ffb547"/></div>
+                <div style={styles.featureCard} className="feature-card">
+                    <div style={styles.iconBox} className="icon-box"><FiAward size={30} color="#ffb547"/></div>
                     <h3>Gamified Impact</h3>
                     <p>Earn XP, climb the leaderboard, and get rewarded for being a good citizen.</p>
                 </div>
             </section>
 
             <Footer />
+
+            {/* MOBILE FIX*/}
+            <style>{`
+                /* Global Safety */
+                html, body {
+                    overflow-x: hidden;
+                    width: 100%;
+                    margin: 0; padding: 0;
+                    box-sizing: border-box;
+                }
+                *, *:before, *:after {
+                    box-sizing: inherit;
+                }
+
+                @media (max-width: 768px) {
+                    /* CONTAINER */
+                    .landing-container {
+                        width: 100vw !important;
+                        overflow-x: hidden !important;
+                    }
+
+                    
+                    .hero-section {
+                        padding: 60px 24px !important;
+                        min-height: auto !important;
+                        display: flex !important;
+                        flex-direction: column !important;
+                        align-items: center !important;
+                        text-align: center !important;
+                    }
+
+                    .hero-content {
+                        margin-top: 0 !important;
+                        width: 100% !important;
+                    }
+
+                    .hero-title {
+                        font-size: 2.4rem !important;
+                        line-height: 1.2 !important;
+                        margin-bottom: 16px !important;
+                    }
+
+                    .hero-subtitle {
+                        font-size: 1rem !important;
+                        margin-bottom: 32px !important;
+                        padding: 0 10px !important;
+                    }
+
+                    .hero-buttons {
+                        flex-direction: column !important;
+                        width: 100% !important;
+                        gap: 12px !important;
+                    }
+
+                    .cta-btn {
+                        width: 100% !important;
+                        justify-content: center !important;
+                        padding: 18px !important;
+                    }
+
+                    
+                    .features-section {
+                        display: flex !important;
+                        flex-direction: column;
+                        padding: 40px 24px !important; /* Matches Hero Padding */
+                        gap: 16px;
+                    }
+
+                    .feature-card {
+                        width: 100% !important;
+                        min-width: 0 !important;
+                        margin: 0 !important;
+                        
+                        
+                        text-align: left !important;
+                        align-items: flex-start !important;
+                        display: flex !important;
+                        flex-direction: column !important;
+                        
+                        /* Fix Padding inside card */
+                        padding: 24px;
+                        height: auto;
+                    }
+
+                    .icon-box {
+                        margin-bottom: 16px;
+                        
+                        flex-shrink: 0;
+                    }
+
+                    .feature-card h3 {
+                        font-size: 1.2rem;
+                        margin-bottom: 8px;
+                    }
+                    
+                    .feature-card p {
+                        font-size: 0.95rem;
+                        line-height: 1.5;
+                        margin: 0;
+                    }
+                }
+            `}</style>
         </div>
     );
 };
 
+// DESKTOP STYLEs
 const styles = {
     container: {
         minHeight: '100vh',

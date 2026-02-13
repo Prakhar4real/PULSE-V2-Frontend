@@ -16,7 +16,7 @@ body {
   color: var(--text-primary);
 }
 
-/* --- MAIN GRID LAYOUT --- */
+/*MAIN GRID LAYOUT*/
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr 350px; 
@@ -24,9 +24,9 @@ body {
   padding: 20px;
   min-height: 100vh; 
   box-sizing: border-box;
-
 }
-/* --- LEFT SECTION (Map + Reports) --- */
+
+/*LEFT SECTION (Map + Reports)*/
 .main-content {
   display: flex;
   flex-direction: column;
@@ -320,4 +320,44 @@ body {
 .resolved-img-preview:hover {
     opacity: 1;
     border-color: #00d68f;
+}
+
+/* =========================================
+   MOBILE RESPONSIVE UPDATES
+   ========================================= */
+
+@media (max-width: 900px) {
+    /* 1. Stack the layout vertically */
+    .dashboard-grid {
+        grid-template-columns: 1fr !important;
+        padding: 10px;
+        gap: 24px;
+        height: auto; /* Allow scrolling */
+        min-height: auto;
+    }
+
+    /* 2. Adjust Map Size for Phones */
+    .map-section {
+        height: 60vh !important; 
+        min-height: 300px;
+    }
+
+    /* 3. Push Sidebar to the bottom */
+    .sidebar {
+        order: 2; 
+        width: 100%;
+    }
+
+    /* 4. Making cards full width */
+    .report-card-modern, 
+    .flip-card {
+        min-width: 100%; /* Full width on phone */
+        width: 100%;
+    }
+
+    /* 5. Adjust grids to be single column */
+    .reports-section {
+        grid-template-columns: 1fr !important;
+        display: grid; /* Ensure grid behavior */
+    }
 }

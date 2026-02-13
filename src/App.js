@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import MobileWarning from './components/MobileWarning';
 
 // Pages
 import LandingPage from './pages/LandingPage';
@@ -14,29 +15,31 @@ import ReportIssue from './pages/ReportIssue';
 import Community from './pages/Community'; 
 import History from './pages/History';
 import NoticeBoard from './pages/NoticeBoard';
+
 // Components
 import ChatWidget from './components/ChatWidget';
 import Navbar from './components/Navbar'; 
 import Footer from './components/Footer'; 
 
 // --- LAYOUT HELPER ---
+// Handles hiding/showing Navbar & Footer based on the current page
 const Layout = ({ children }) => {
   const location = useLocation();
   
-  
+  // Routes where Navbar should be hidden
   const hideNavbarRoutes = ['/', '/login', '/register'];
   const showNavbar = !hideNavbarRoutes.includes(location.pathname);
 
-  
+  // Routes where Footer should be hidden
   const hideFooterRoutes = ['/', '/login', '/register', '/chat']; 
   const showFooter = !hideFooterRoutes.includes(location.pathname);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      {/* Navbar */}
+      {/* Navbar (Conditional) */}
       {showNavbar && <Navbar />} 
       
-      {/* Global Chat Widget */}
+      {/* Global Chat Widget (Always present) */}
       <ChatWidget />
       
       {/* Main Content (Grows to fill space) */}
@@ -44,7 +47,7 @@ const Layout = ({ children }) => {
         {children}
       </div>
 
-      
+      {/* Footer (Conditional) */}
       {showFooter && <Footer />}
     </div>
   );
@@ -53,6 +56,8 @@ const Layout = ({ children }) => {
 function App() {
   return (
     <Router>
+      <MobileWarning />
+
       <Layout>
         <Routes>
           <Route path="/" element={<LandingPage />} />

@@ -176,3 +176,35 @@
     color: #00d68f;
     transform: translateX(-2px);
 }
+
+/*MOBILE VIEW*/
+
+@media (max-width: 768px) {
+    .history-container {
+        padding: 20px 15px;
+    }
+
+    .history-card {
+        flex-direction: column; /* Stack vertically */
+    }
+
+    .history-img-container {
+        width: 100%;
+        height: 200px; /* Bigger image on phone */
+        margin-bottom: 15px;
+    }
+
+    .history-content {
+        width: 100%;
+    }
+
+    .history-actions {
+        width: 100%;
+        flex-direction: row; /* Buttons side-by-side */
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #2a2b3d;
+    }
+}

@@ -47,7 +47,7 @@ const History = () => {
 
             
             const myReports = res.data.filter(r => {
-                // Handle case where r.user might be an object or an ID
+                
                 const reportUserId = typeof r.user === 'object' ? r.user.id : r.user;
                 return reportUserId == userId;
             });
@@ -80,7 +80,7 @@ const History = () => {
                     {reports.map((report) => (
                         <div key={report.id} className="history-card">
                             
-                            {/* --- 1. USER UPLOADED PHOTO (CLICKABLE) --- */}
+                            {/*1. USER UPLOADED PHOTO (CLICKABLE)*/}
                             <div className="history-img-container">
                                 <a href={getImageUrl(report.image)} target="_blank" rel="noopener noreferrer">
                                     <img 
@@ -93,7 +93,7 @@ const History = () => {
                                 </a>
                             </div>
 
-                            {/* --- MIDDLE CONTENT --- */}
+                            {/*MIDDLE CONTENT */}
                             <div className="history-content">
                                 <div className="history-header">
                                     <h3 className="history-title">{report.title}</h3>
@@ -117,7 +117,7 @@ const History = () => {
                                     {report.description || "No additional details provided."}
                                 </p>
 
-                                {/* --- ADMIN FEEDBACK SECTION --- */}
+                                {/*ADMIN FEEDBACK SECTION*/}
                                 {report.feedback && (
                                     <div className="admin-feedback-box">
                                         <span className="admin-label">
@@ -130,7 +130,7 @@ const History = () => {
                                 )}
                             </div>
 
-                            {/* --- RIGHT STATUS & PROOF --- */}
+                            {/*RIGHT STATUS & PROOF*/}
                             <div className="history-actions">
                                 <div className="status-badge" style={{
                                     borderColor: getStatusColor(report.status),

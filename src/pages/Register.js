@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import api from "../services/api";
 import { useNavigate, Link } from "react-router-dom";
-import "../styles/Auth.css"; 
 
 function Register() {
   const [username, setUsername] = useState("");
@@ -12,7 +11,6 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Send phone_number only if user typed it
       const payload = { 
           username, 
           password, 
@@ -29,8 +27,78 @@ function Register() {
 
   return (
     <div className="auth-container">
+      {/* EMBEDDED STYLES - Blue Theme */}
+      <style>{`
+          .auth-container {
+              min-height: 80vh;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              background-color: #050509;
+              padding: 20px;
+              color: white;
+          }
+          .auth-card {
+              background-color: #151621;
+              padding: 40px;
+              border-radius: 16px;
+              width: 100%;
+              max-width: 400px;
+              border: 1px solid #2a2b3d;
+              text-align: center;
+              box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+          }
+          .auth-title { margin-bottom: 10px; font-weight: 800; font-size: 2rem; }
+          .auth-subtitle { color: #8b8d9d; margin-bottom: 30px; font-size: 0.95rem; }
+          
+          .auth-form { display: flex; flex-direction: column; gap: 15px; }
+          
+          .auth-input {
+              width: 100%;
+              padding: 14px;
+              border-radius: 10px;
+              border: 1px solid #2a2b3d;
+              background-color: #0b0c15;
+              color: white;
+              font-size: 1rem;
+              outline: none;
+              box-sizing: border-box; 
+              transition: border-color 0.2s;
+          }
+          /* Blue Focus Glow */
+          .auth-input:focus { border-color: #2970ff; } 
+
+          .auth-button {
+              padding: 14px;
+              border-radius: 10px;
+              border: none;
+              background-color: #2970ff; /* Blue */
+              color: white; /* White Text */
+              font-size: 1.1rem;
+              font-weight: bold;
+              cursor: pointer;
+              margin-top: 10px;
+              transition: transform 0.1s;
+          }
+          .auth-button:active { transform: scale(0.98); }
+
+          .auth-footer { margin-top: 25px; color: #888; fontSize: 0.9rem; }
+          .auth-footer a { color: #2970ff; text-decoration: none; font-weight: bold; }
+
+          /* --- MOBILE RESPONSIVENESS --- */
+          @media (max-width: 768px) {
+              .auth-card {
+                  padding: 30px 20px;
+                  max-width: 100%;
+              }
+              .auth-input {
+                  font-size: 16px; 
+              }
+          }
+      `}</style>
+
       <div className="auth-card">
-        <h2>Join PULSE</h2>
+        <h2 className="auth-title">Join PULSE</h2>
         <p className="auth-subtitle">Become a verified citizen.</p>
         
         <form onSubmit={handleSubmit} className="auth-form">
@@ -43,19 +111,15 @@ function Register() {
             required
           />
           
-          {/* OPTIONAL PHONE INPUT - FIXED SPACING */}
-          <div className="phone-input-group">
+          <div className="phone-input-group" style={{textAlign:'left'}}>
             <input
               type="text"
               className="auth-input"
-              placeholder="Phone (Optional - for SMS Alerts)"
+              placeholder="Phone (Optional)"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              
-              style={{ marginBottom: "5px" }} 
             />
-            
-            <small style={{ color: "#ccc", fontSize: "0.7rem", display: "block", marginTop: "2px", marginBottom: "15px", textAlign: "left", paddingLeft: "5px" }}>
+            <small style={{ color: "#666", fontSize: "0.75rem", display: "block", marginTop: "5px", paddingLeft: "5px" }}>
               *SMS alerts active for Verified Testers only.
             </small>
           </div>

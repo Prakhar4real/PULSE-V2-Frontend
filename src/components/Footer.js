@@ -15,7 +15,7 @@ const Footer = () => {
     };
 
     return (
-        <footer style={styles.footerContainer}>
+        <footer style={styles.footerContainer} className="footer-container-main">
             <style>
                 {`
                     /* Text Link Hover */
@@ -60,18 +60,67 @@ const Footer = () => {
                         box-shadow: 0 0 15px rgba(41, 112, 255, 0.2);
                         transform: translateY(-2px);
                     }
+
+                    /* 
+                       MOBILE OVERRIDE 
+                        */
+                    @media (max-width: 768px) {
+                        /* 1. Reset Padding */
+                        .footer-container-main {
+                            padding: 40px 20px !important;
+                        }
+
+                        /* 2. Stack Content Vertically */
+                        .footer-content-wrapper {
+                            flex-direction: column !important;
+                            gap: 40px !important;
+                        }
+
+                        /* 3. Brand Section Full Width */
+                        .footer-brand-section {
+                            width: 100% !important;
+                            max-width: 100% !important;
+                            flex: none !important;
+                            text-align: left !important;
+                        }
+                        
+                        /* 4. MAKE LINKS 2-COLUMN GRID */
+                        .footer-links-container {
+                            width: 100% !important;
+                            justify-content: flex-start !important;
+                            gap: 30px !important;
+                            display: grid !important;
+                            grid-template-columns: 1fr 1fr !important; /* The 2-Column Magic */
+                        }
+
+                        .footer-link-column {
+                            min-width: 0 !important; /* Allow shrinking */
+                        }
+
+                        /* 5. Bottom Bar Stack */
+                        .footer-bottom-bar {
+                            flex-direction: column-reverse !important; /* Copyright at bottom */
+                            gap: 20px !important;
+                            text-align: center !important;
+                            margin-top: 40px !important;
+                        }
+
+                        .footer-social-icons {
+                            width: 100% !important;
+                            justify-content: center !important;
+                        }
+                    }
                 `}
             </style>
 
-            <div style={styles.contentWrapper}>
+            <div style={styles.contentWrapper} className="footer-content-wrapper">
                 
                 {/* 1. BRAND SECTION */}
-                <div style={styles.brandSection}>
+                <div style={styles.brandSection} className="footer-brand-section">
                     <h1 style={styles.logo}>PULSE<span style={{color: '#2970ff'}}>.</span></h1>
                     <p style={styles.description}>
                         PULSE isn't just a platform; it's a digital revolution for urban governance. 
-                        We bridge the gap between citizens and authorities through real-time data, AI-driven insights, and collective action. 
-                        Don't just watch your city change; be the one who changes it.
+                        We bridge the gap between citizens and authorities through real-time data.
                     </p>
                     <div style={styles.downloadButtons}>
                         <button className="store-btn" style={styles.storeBtn}>
@@ -92,10 +141,9 @@ const Footer = () => {
                 </div>
 
                 {/* 2. LINKS SECTION */}
-                <div style={styles.linksContainer}>
-                    <div style={styles.linkColumn}>
+                <div style={styles.linksContainer} className="footer-links-container">
+                    <div style={styles.linkColumn} className="footer-link-column">
                         <h4 style={styles.linkHeader}>Product</h4>
-                        
                         
                         {token ? (
                             <>
@@ -122,7 +170,7 @@ const Footer = () => {
                         </Link>
                     </div>
 
-                    <div style={styles.linkColumn}>
+                    <div style={styles.linkColumn} className="footer-link-column">
                         <h4 style={styles.linkHeader}>Resources</h4>
                         <Link to="/docs/safety-guidelines" target="_blank" className="footer-link">Safety Guidelines</Link>
                         <Link to="/docs/api-documentation" target="_blank" className="footer-link">API Documentation</Link>
@@ -130,7 +178,7 @@ const Footer = () => {
                         <Link to="/docs/help-center" target="_blank" className="footer-link">Help Center</Link>
                     </div>
 
-                    <div style={styles.linkColumn}>
+                    <div style={styles.linkColumn} className="footer-link-column">
                         <h4 style={styles.linkHeader}>Legal</h4>
                         <Link to="/docs/privacy-policy" target="_blank" className="footer-link">Privacy Policy</Link>
                         <Link to="/docs/terms-of-service" target="_blank" className="footer-link">Terms of Service</Link>
@@ -142,9 +190,9 @@ const Footer = () => {
             </div>
 
             {/* BOTTOM BAR */}
-            <div style={styles.bottomBar}>
+            <div style={styles.bottomBar} className="footer-bottom-bar">
                 <p style={{margin: 0, color: '#666', fontSize: '0.85rem'}}>© 2026 PULSE Smart City Initiative. All rights reserved.</p>
-                <div style={styles.socialIcons}>
+                <div style={styles.socialIcons} className="footer-social-icons">
                     <a href={socialLinks.twitter} target="_blank" rel="noreferrer" className="social-btn"><FiTwitter /></a>
                     <a href={socialLinks.instagram} target="_blank" rel="noreferrer" className="social-btn"><FiInstagram /></a>
                     <a href={socialLinks.linkedin} target="_blank" rel="noreferrer" className="social-btn"><FiLinkedin /></a>

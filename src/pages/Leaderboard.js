@@ -92,7 +92,7 @@ const Leaderboard = () => {
     );
 };
 
-// --- STYLES ---
+// STYLES
 const styles = {
     container: {
         padding: '40px',

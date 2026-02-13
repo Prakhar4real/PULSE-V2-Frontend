@@ -102,7 +102,8 @@ const Community = () => {
 
             
             <div style={{
-                height: '650px', 
+                height: '70vh', 
+                minHeight: '400px',
                 borderRadius: '16px', 
                 overflow: 'hidden', 
                 border: '2px solid #2970ff',  // Blue Border

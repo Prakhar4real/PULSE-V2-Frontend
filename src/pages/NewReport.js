@@ -6,7 +6,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { FiCamera, FiRefreshCw } from 'react-icons/fi';
 
-// --- 1. SETUP RED INCIDENT PIN ---
+//1. SETUP RED INCIDENT PIN
 
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -20,7 +20,7 @@ const RedIcon = L.icon({
     shadowSize: [41, 41]
 });
 
-// --- 2. DRAGGABLE INCIDENT PIN ---
+// 2. DRAGGABLE INCIDENT PIN 
 const IncidentPin = ({ position, setPosition, setAddress }) => {
     const markerRef = useRef(null);
     const eventHandlers = useMemo(() => ({
@@ -47,7 +47,7 @@ const IncidentPin = ({ position, setPosition, setAddress }) => {
     );
 };
 
-// --- 3. BLUE DOT ---
+// 3. BLUE DOT
 // using CircleMarker because it is SVG-based and CANNOT fail to load like an image.
 const UserLocationDot = ({ userLocation }) => {
     const map = useMap();

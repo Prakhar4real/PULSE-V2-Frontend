@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { FiTarget, FiShield, FiStar, FiAward, FiUser } from 'react-icons/fi';
 
-// --- COMPONENT: LEVEL PROGRESSION CARD ---
+
 const LevelProgress = () => {
     const levels = [
         { name: "Citizen", xp: 0, icon: <FiUser />, color: "#8b8d9d" },
@@ -41,7 +41,7 @@ const LevelProgress = () => {
     );
 };
 
-// --- COMPONENT: USER AVATAR (For Leaderboard) ---
+//USER AVATAR (For Leaderboard
 const UserAvatar = ({ user, rank }) => {
     // 1. Determine Border Color based on Rank
     let borderColor = '#333'; // Default
@@ -73,7 +73,7 @@ const UserAvatar = ({ user, rank }) => {
     );
 };
 
-// --- MAIN PAGE COMPONENT ---
+//MAIN PAGE COMPONENt
 const Missions = () => {
     const navigate = useNavigate();
     const [leaderboard, setLeaderboard] = useState([]);
