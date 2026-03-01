@@ -84,7 +84,7 @@ const UserProfile = () => {
                             <input 
                                 type="text" 
                                 name="phone_number" // Added name
-                                value={userData.phone_number || ""} // Handle null value
+                                value={userData.phone_number || ""} 
                                 onChange={(e) => setUserData({...userData, phone_number: e.target.value})}
                                 style={styles.input} 
                                 placeholder="+91 99999 99999"
@@ -102,7 +102,7 @@ const UserProfile = () => {
 
     const imageUrl = previewUrl 
         ? previewUrl 
-        : (userData.profile_picture ? (userData.profile_picture.startsWith('http') ? userData.profile_picture : `http://127.0.0.1:8000${userData.profile_picture}`) : null);
+        : (userData.profile_picture ? (userData.profile_picture.startsWith('http') ? userData.profile_picture : `https://pulse-v2-backend.onrender.com${userData.profile_picture}`) : null);
 
     return (
         <div style={{minHeight: '100vh', backgroundColor: '#0b0c15', color: 'white', padding: '20px'}}>

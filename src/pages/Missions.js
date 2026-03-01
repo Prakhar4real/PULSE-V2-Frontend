@@ -54,7 +54,7 @@ const UserAvatar = ({ user, rank }) => {
     if (user.profile_picture) {
         imageUrl = user.profile_picture.startsWith('http') 
             ? user.profile_picture 
-            : `http://127.0.0.1:8000${user.profile_picture}`;
+            : `https://pulse-v2-backend.onrender.com${user.profile_picture}`;
     }
 
     return (

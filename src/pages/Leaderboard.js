@@ -15,7 +15,7 @@ const Leaderboard = () => {
             
             try {
                 // 2. Send the token in the headers 
-                const res = await axios.get("http://127.0.0.1:8000/api/leaderboard/", {
+                const res = await axios.get("https://pulse-v2-backend.onrender.com/api/leaderboard/", {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 

@@ -11,7 +11,7 @@ const generateCaseId = (id) => {
 
 const getImageUrl = (path) => {
     if (!path) return null;
-    return path.startsWith('http') ? path : `http://127.0.0.1:8000${path}`;
+    return path.startsWith('http') ? path : `https://pulse-v2-backend.onrender.com${path}`;
 };
 
 
