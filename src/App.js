@@ -15,13 +15,14 @@ import ReportIssue from './pages/ReportIssue';
 import Community from './pages/Community'; 
 import History from './pages/History';
 import NoticeBoard from './pages/NoticeBoard';
+import RanksRewards from './pages/RanksRewards';
 
 // Components
 import ChatWidget from './components/ChatWidget';
 import Navbar from './components/Navbar'; 
 import Footer from './components/Footer'; 
 
-// --- LAYOUT HELPER ---
+// LAYOUT HELPER
 // Handles hiding/showing Navbar & Footer based on the current page
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -36,18 +37,18 @@ const Layout = ({ children }) => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      {/* Navbar (Conditional) */}
+      {/* Navbar */}
       {showNavbar && <Navbar />} 
       
-      {/* Global Chat Widget (Always present) */}
+      {/* Global Chat Widget */}
       <ChatWidget />
       
-      {/* Main Content (Grows to fill space) */}
+      {/* Main Content */}
       <div style={{ flex: 1 }}>
         {children}
       </div>
 
-      {/* Footer (Conditional) */}
+      {/* Footer */}
       {showFooter && <Footer />}
     </div>
   );
@@ -72,6 +73,7 @@ function App() {
           <Route path="/report-issue" element={<ReportIssue />} />
           <Route path="/history" element={<History />} />
           <Route path="/notices" element={<NoticeBoard />} />
+          <Route path="/rewards" element={<RanksRewards />} />
         </Routes>
       </Layout>
     </Router>

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import { FiTarget, FiShield, FiStar, FiAward, FiUser } from 'react-icons/fi';
-
 
 const LevelProgress = () => {
     const levels = [
@@ -14,17 +13,21 @@ const LevelProgress = () => {
 
     return (
         <div style={styles.levelPanel}>
-            <h3 style={{margin: '0 0 15px 0', borderBottom: '1px solid #333', paddingBottom: '10px', display: 'flex', alignItems: 'center', gap: '10px'}}>
-                <FiAward color="#ffb547"/> Rank Progression
+            <h3 style={{ margin: '0 0 15px 0', borderBottom: '1px solid #333', paddingBottom: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <FiAward color="#ffb547" />
+                {/*Clickable Link to open Rewards in a new tab */}
+                <Link to="/rewards" target="_blank" rel="noopener noreferrer" style={{ color: 'white', textDecoration: 'underline', cursor: 'pointer' }}>
+                    Ranks & Rewards
+                </Link>
             </h3>
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative'}}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
                 {/* Connecting Line */}
-                <div style={{position: 'absolute', top: '25px', left: '20px', right: '20px', height: '2px', backgroundColor: '#333', zIndex: 0}}></div>
-                
+                <div style={{ position: 'absolute', top: '25px', left: '20px', right: '20px', height: '2px', backgroundColor: '#333', zIndex: 0 }}></div>
+
                 {levels.map((lvl, index) => (
-                    <div key={index} style={{zIndex: 1, textAlign: 'center', backgroundColor: '#1e1e1e', padding: '0 5px'}}>
+                    <div key={index} style={{ zIndex: 1, textAlign: 'center', backgroundColor: '#1e1e1e', padding: '0 5px' }}>
                         <div style={{
-                            width: '50px', height: '50px', borderRadius: '50%', 
+                            width: '50px', height: '50px', borderRadius: '50%',
                             backgroundColor: '#252525', border: `2px solid ${lvl.color}`,
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             fontSize: '1.2rem', color: lvl.color, margin: '0 auto 8px auto',
@@ -32,8 +35,8 @@ const LevelProgress = () => {
                         }}>
                             {lvl.icon}
                         </div>
-                        <div style={{fontWeight: 'bold', fontSize: '0.9rem', color: 'white'}}>{lvl.name}</div>
-                        <div style={{fontSize: '0.75rem', color: '#888'}}>{lvl.xp}+ XP</div>
+                        <div style={{ fontWeight: 'bold', fontSize: '0.9rem', color: 'white' }}>{lvl.name}</div>
+                        <div style={{ fontSize: '0.75rem', color: '#888' }}>{lvl.xp}+ XP</div>
                     </div>
                 ))}
             </div>
@@ -41,44 +44,44 @@ const LevelProgress = () => {
     );
 };
 
-//USER AVATAR (For Leaderboard
+//USER AVATAR
 const UserAvatar = ({ user, rank }) => {
-    // 1. Determine Border Color based on Rank
-    let borderColor = '#333'; // Default
-    if (rank === 0) borderColor = '#ffd700'; // Gold
-    if (rank === 1) borderColor = '#c0c0c0'; // Silver
-    if (rank === 2) borderColor = '#cd7f32'; // Bronze
+    let borderColor = '#333';
+    if (rank === 0) borderColor = '#ffd700';
+    if (rank === 1) borderColor = '#c0c0c0';
+    if (rank === 2) borderColor = '#cd7f32';
 
-    // 2. Get Image URL
     let imageUrl = null;
     if (user.profile_picture) {
-        imageUrl = user.profile_picture.startsWith('http') 
-            ? user.profile_picture 
+        imageUrl = user.profile_picture.startsWith('http')
+            ? user.profile_picture
             : `https://pulse-v2-backend.onrender.com${user.profile_picture}`;
     }
 
     return (
         <div style={{
-            width: '45px', height: '45px', borderRadius: '50%', 
+            width: '45px', height: '45px', borderRadius: '50%',
             border: `2px solid ${borderColor}`, overflow: 'hidden',
             backgroundColor: '#1f2029', display: 'flex', alignItems: 'center', justifyContent: 'center',
             marginRight: '15px', flexShrink: 0
         }}>
             {imageUrl ? (
-                <img src={imageUrl} alt={user.username} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+                <img src={imageUrl} alt={user.username} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
-                <FiUser size={20} color="#8b8d9d"/>
+                <FiUser size={20} color="#8b8d9d" />
             )}
         </div>
     );
 };
 
-//MAIN PAGE COMPONENt
+//MAIN PAGE COMPONENT
 const Missions = () => {
     const navigate = useNavigate();
     const [leaderboard, setLeaderboard] = useState([]);
     const [missions, setMissions] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [uploadingId, setUploadingId] = useState(null);
+    const [joiningId, setJoiningId] = useState(null);
 
     useEffect(() => {
         fetchGamificationData();
@@ -88,13 +91,10 @@ const Missions = () => {
         try {
             const token = localStorage.getItem('access');
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            
-            // Fetch both endpoints in parallel
             const [lbRes, msRes] = await Promise.all([
                 api.get('leaderboard/', config),
                 api.get('missions/', config)
             ]);
-            
             setLeaderboard(lbRes.data);
             setMissions(msRes.data);
         } catch (error) {
@@ -103,107 +103,151 @@ const Missions = () => {
             setLoading(false);
         }
     };
-    
+
     const handleJoinMission = async (missionId) => {
+        //loader
+        setJoiningId(missionId);
         try {
             const token = localStorage.getItem('access');
             await api.post(`missions/${missionId}/join/`, {}, { headers: { Authorization: `Bearer ${token}` } });
             alert("Mission Started! Good luck.");
             fetchGamificationData();
         } catch (error) { alert("Could not join mission."); }
+        finally {
+            // Turn OFF the loader
+            setJoiningId(null);
+        }
     };
 
     const handleSubmitProof = async (missionId, file) => {
         if (!file) return;
+
+        const MAX_FILE_SIZE = 5 * 1024 * 1024;
+        if (file.size > MAX_FILE_SIZE) {
+            alert("Image is too large! Please upload a photo smaller than 5MB.");
+            return;
+        }
+
+        setUploadingId(missionId);
         const formData = new FormData();
         formData.append('image', file);
+
         try {
             const token = localStorage.getItem('access');
-            await api.post(`missions/${missionId}/submit_proof/`, formData, { headers: { Authorization: `Bearer ${token}` } });
-            alert("Proof Submitted! Check back later for verification."); 
-            fetchGamificationData(); 
-        } catch (error) { alert("Upload failed. Please try again."); }
+            const response = await api.post(`missions/${missionId}/submit_proof/`, formData, { headers: { Authorization: `Bearer ${token}` } });
+            alert(response.data.message);
+            fetchGamificationData();
+        } catch (error) {
+            const errorMessage = error.response?.data?.error || error.response?.data?.message || "Upload failed. Please try again.";
+            alert(errorMessage);
+        } finally {
+            setUploadingId(null);
+        }
     };
 
     return (
         <div style={styles.container}>
             <div style={styles.header}>
                 <button onClick={() => navigate('/dashboard')} style={styles.backBtn}>← Back to Dashboard</button>
-                <h1 style={{margin: 0}}>Hall of Fame</h1>
+                <h1 style={{ margin: 0 }}>Hall of Fame</h1>
             </div>
 
             <div style={styles.grid}>
-                {/* LEFT COLUMN: Stats & Leaderboard */}
-                <div style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
-                    
-                    {/* 1. Level Progress Bar */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <LevelProgress />
-                    
-                    {/* 2. Top Contributors List */}
+
                     <div style={styles.panel}>
-                        <h2 style={{borderBottom: '1px solid #333', paddingBottom: '10px', marginTop: 0}}>Top Contributors</h2>
+                        <h2 style={{ borderBottom: '1px solid #333', paddingBottom: '10px', marginTop: 0 }}>Top Contributors</h2>
                         {loading ? <p>Loading rankings...</p> : (
                             <ul style={styles.list}>
                                 {leaderboard.map((user, index) => (
                                     <li key={index} style={styles.listItem}>
-                                        {/* AVATAR + RANK BORDER */}
                                         <UserAvatar user={user} rank={index} />
-                                        
-                                        <div style={{flex: 1}}>
-                                            <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                                                <strong style={{color: index === 0 ? '#ffd700' : 'white', fontSize: '1.05rem'}}>
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <strong style={{ color: index === 0 ? '#ffd700' : 'white', fontSize: '1.05rem' }}>
                                                     {user.username}
                                                 </strong>
-                                                {index === 0 && <span style={{fontSize: '0.8rem'}}>👑</span>}
+                                                {index === 0 && <span style={{ fontSize: '0.8rem' }}>👑</span>}
                                             </div>
-                                            <div style={{fontSize: '0.8rem', color: '#888'}}>Level {user.level || 1}</div>
+                                            <div style={{ fontSize: '0.8rem', color: '#888' }}>Level {user.level || 1}</div>
                                         </div>
-                                        <span style={{color: '#00d68f', fontWeight: 'bold'}}>{user.points} XP</span>
+                                        <span style={{ color: '#00d68f', fontWeight: 'bold' }}>{user.points} XP</span>
                                     </li>
                                 ))}
-                                {leaderboard.length === 0 && <p style={{color: '#666', fontStyle: 'italic'}}>No top scouts yet.</p>}
+                                {leaderboard.length === 0 && <p style={{ color: '#666', fontStyle: 'italic' }}>No top scouts yet.</p>}
                             </ul>
                         )}
                     </div>
                 </div>
 
-                {/* RIGHT COLUMN: Active Missions */}
                 <div style={styles.panel}>
-                    <h2 style={{borderBottom: '1px solid #333', paddingBottom: '10px', marginTop: 0}}>Active Missions</h2>
+                    <h2 style={{ borderBottom: '1px solid #333', paddingBottom: '10px', marginTop: 0 }}>Active Missions</h2>
                     {loading ? <p>Loading missions...</p> : (
                         <div style={styles.missionGrid}>
                             {missions.map((mission) => (
                                 <div key={mission.id} style={styles.missionCard}>
-                                    <div style={{fontSize: '2rem', padding: '10px', background: '#333', borderRadius: '10px'}}>{mission.icon || "🏆"}</div>
-                                    <div style={{flex: 1, padding: '0 15px'}}>
-                                        <h3 style={{margin: '0 0 5px 0'}}>{mission.title}</h3>
-                                        <p style={{fontSize: '0.8rem', color: '#aaa', margin: 0}}>{mission.description}</p>
+                                    <div style={{ fontSize: '2rem', padding: '10px', background: '#333', borderRadius: '10px' }}>{mission.icon || "🏆"}</div>
+                                    <div style={{ flex: 1, padding: '0 15px' }}>
+                                        <h3 style={{ margin: '0 0 5px 0' }}>{mission.title}</h3>
+                                        <p style={{ fontSize: '0.8rem', color: '#aaa', margin: 0 }}>{mission.description}</p>
                                     </div>
-                                    <div style={{textAlign: 'right'}}>
-                                        <div style={{color: '#ffd700', fontWeight: 'bold', marginBottom: '8px'}}>+{mission.points} XP</div>
-                                        
-                                        {/* ACTION BUTTONS */}
+                                    <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                                        <div style={{ color: '#ffd700', fontWeight: 'bold', marginBottom: '8px' }}>+{mission.points} XP</div>
+
                                         {mission.status === 'available' && (
-                                            <button onClick={() => handleJoinMission(mission.id)} style={styles.btnStart}>START</button>
+                                            joiningId === mission.id ? (
+                                                // SHOW THIS WHEN LOADING
+                                                <button style={{ ...styles.btnStart, opacity: 0.7, cursor: 'not-allowed' }} disabled>
+                                                    <span className="pulse-loader" style={{ width: '12px', height: '12px', borderWidth: '2px', marginRight: '6px', display: 'inline-block' }}></span>
+                                                    Starting...
+                                                </button>
+                                            ) : (
+                                                // SHOW THIS NORMALLY
+                                                <button onClick={() => handleJoinMission(mission.id)} style={styles.btnStart}>
+                                                    START
+                                                </button>
+                                            )
                                         )}
-                                        {mission.status === 'pending' && (
-                                            <label style={styles.btnUpload}>
-                                                📷 Upload Proof
-                                                <input type="file" style={{display:'none'}} onChange={(e) => handleSubmitProof(mission.id, e.target.files[0])}/>
-                                            </label>
-                                        )}
-                                        {mission.status === 'completed' && (
-                                            <span style={styles.badgeDone}>✅ COMPLETED</span>
+
+                                        {/*Allows infinite uploads even if completed */}
+                                        {(mission.status === 'pending' || mission.status === 'completed') && (
+                                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+
+                                                {mission.status === 'completed' && (
+                                                    <span style={{ ...styles.badgeDone, marginBottom: '8px' }}>✅ COMPLETED</span>
+                                                )}
+
+                                                {uploadingId === mission.id ? (
+                                                    <button style={{ ...styles.btnUpload, opacity: 0.7, cursor: 'not-allowed' }} disabled>
+                                                        <span className="pulse-loader"></span>AI is analyzing...
+                                                    </button>
+                                                ) : (
+                                                    <label style={{ ...styles.btnUpload, backgroundColor: mission.status === 'completed' ? '#2970ff' : '#ffb547', color: mission.status === 'completed' ? 'white' : '#0b0c15' }}>
+                                                        {mission.status === 'completed' ? '📷 Upload More Proof' : '📷 Upload Proof'}
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            style={{ display: 'none' }}
+                                                            onChange={(e) => handleSubmitProof(mission.id, e.target.files[0])}
+                                                            disabled={uploadingId !== null}
+                                                        />
+                                                    </label>
+                                                )}
+                                                <span style={{ fontSize: '0.7rem', color: '#8b8d9d', marginTop: '6px' }}>
+                                                    Max size: 5MB
+                                                </span>
+                                            </div>
                                         )}
                                     </div>
                                 </div>
                             ))}
-                            {missions.length === 0 && <p style={{color: '#666'}}>No active missions right now.</p>}
+                            {missions.length === 0 && <p style={{ color: '#666' }}>No active missions right now.</p>}
                         </div>
                     )}
                 </div>
-            </div> 
-        </div> 
+            </div>
+        </div>
     );
 };
 
@@ -211,21 +255,16 @@ const styles = {
     container: { padding: '40px', minHeight: '100vh', backgroundColor: '#0b0c15', color: 'white' },
     header: { display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '30px' },
     backBtn: { background: 'none', border: '1px solid #555', color: 'white', padding: '8px 16px', borderRadius: '5px', cursor: 'pointer', transition: '0.3s' },
-    
-    grid: { display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '30px', alignItems: 'start' }, 
-    
+    grid: { display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '30px', alignItems: 'start' },
     panel: { backgroundColor: '#151621', borderRadius: '15px', padding: '25px', border: '1px solid #2a2b3d' },
     levelPanel: { backgroundColor: '#151621', borderRadius: '15px', padding: '20px', border: '1px solid #2a2b3d' },
-    
     list: { listStyle: 'none', padding: 0, margin: 0 },
     listItem: { display: 'flex', alignItems: 'center', padding: '15px 10px', borderBottom: '1px solid #2a2b3d' },
-    
     missionGrid: { display: 'flex', flexDirection: 'column', gap: '15px' },
     missionCard: { display: 'flex', alignItems: 'center', backgroundColor: '#1f2029', padding: '15px', borderRadius: '12px', border: '1px solid #2a2b3d' },
-    
     badgeDone: { fontSize: '0.7rem', backgroundColor: '#00d68f', color: '#0b0c15', padding: '5px 10px', borderRadius: '6px', fontWeight: 'bold' },
     btnStart: { backgroundColor: '#2970ff', color: 'white', border: 'none', padding: '8px 15px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.75rem' },
-    btnUpload: { backgroundColor: '#ffb547', color: '#0b0c15', border: 'none', padding: '8px 15px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.75rem', display: 'inline-block' },
+    btnUpload: { border: 'none', padding: '8px 15px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.75rem', display: 'inline-block' },
 };
 
 export default Missions;

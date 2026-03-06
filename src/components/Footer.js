@@ -4,11 +4,11 @@ import { FaGooglePlay, FaApple } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
-    
+
     const token = localStorage.getItem('access');
 
     const socialLinks = {
-        linkedin: "https://www.linkedin.com/in/workprakhardwivedi/", 
+        linkedin: "https://www.linkedin.com/in/workprakhardwivedi/",
         github: "https://github.com/Prakhar4real",
         twitter: "https://twitter.com",
         instagram: "https://instagram.com"
@@ -114,27 +114,27 @@ const Footer = () => {
             </style>
 
             <div style={styles.contentWrapper} className="footer-content-wrapper">
-                
+
                 {/* 1. BRAND SECTION */}
                 <div style={styles.brandSection} className="footer-brand-section">
-                    <h1 style={styles.logo}>PULSE<span style={{color: '#2970ff'}}>.</span></h1>
+                    <h1 style={styles.logo}>PULSE<span style={{ color: '#2970ff' }}>.</span></h1>
                     <p style={styles.description}>
-                        PULSE isn't just a platform; it's a digital revolution for urban governance. 
-                        We bridge the gap between citizens and authorities through real-time data.
+                        PULSE is a platform designed to improve transparency, responsiveness, and data-driven governance in urban environments.<br></br>
+                        By connecting citizens and public authorities through verified reporting systems, PULSE supports more informed decision-making and accountable city management.
                     </p>
                     <div style={styles.downloadButtons}>
                         <button className="store-btn" style={styles.storeBtn}>
                             <FaGooglePlay size={20} />
-                            <div style={{textAlign: 'left'}}>
-                                <span style={{fontSize: '0.6rem', display: 'block'}}>GET IT ON</span>
-                                <span style={{fontSize: '0.9rem', fontWeight: 'bold'}}>Google Play</span>
+                            <div style={{ textAlign: 'left' }}>
+                                <span style={{ fontSize: '0.6rem', display: 'block' }}>GET IT ON</span>
+                                <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Google Play</span>
                             </div>
                         </button>
                         <button className="store-btn" style={styles.storeBtn}>
                             <FaApple size={24} />
-                            <div style={{textAlign: 'left'}}>
-                                <span style={{fontSize: '0.6rem', display: 'block'}}>Download on the</span>
-                                <span style={{fontSize: '0.9rem', fontWeight: 'bold'}}>App Store</span>
+                            <div style={{ textAlign: 'left' }}>
+                                <span style={{ fontSize: '0.6rem', display: 'block' }}>Download on the</span>
+                                <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>App Store</span>
                             </div>
                         </button>
                     </div>
@@ -143,8 +143,8 @@ const Footer = () => {
                 {/* 2. LINKS SECTION */}
                 <div style={styles.linksContainer} className="footer-links-container">
                     <div style={styles.linkColumn} className="footer-link-column">
-                        <h4 style={styles.linkHeader}>Product</h4>
-                        
+                        <h4 style={styles.linkHeader}>Platform</h4>
+
                         {token ? (
                             <>
                                 <Link to="/dashboard" className="footer-link">Command Center</Link>
@@ -158,32 +158,32 @@ const Footer = () => {
                                 <Link to="/login" className="footer-link">Login</Link>
                             </>
                         )}
-                        
-                        <Link 
-                            to="/report-issue" 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="footer-link" 
-                            style={{color: '#2970ff', fontWeight: 'bold'}}
+
+                        <Link
+                            to="/report-issue"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="footer-link"
+                            style={{ color: '#2970ff', fontWeight: 'bold' }}
                         >
                             Report Issue
                         </Link>
                     </div>
 
                     <div style={styles.linkColumn} className="footer-link-column">
-                        <h4 style={styles.linkHeader}>Resources</h4>
-                        <Link to="/docs/safety-guidelines" target="_blank" className="footer-link">Safety Guidelines</Link>
-                        <Link to="/docs/api-documentation" target="_blank" className="footer-link">API Documentation</Link>
-                        <Link to="/docs/city-partnerships" target="_blank" className="footer-link">City Partnerships</Link>
-                        <Link to="/docs/help-center" target="_blank" className="footer-link">Help Center</Link>
+                        <h4 style={styles.linkHeader}>Governance</h4>
+                        <Link to="/docs/safety-guidelines" target="_blank" className="footer-link">Verification Framework</Link>
+                        <Link to="/docs/api-documentation" target="_blank" className="footer-link">Data Transparency Policy</Link>
+                        <Link to="/docs/city-partnerships" target="_blank" className="footer-link">Public Reporting Standards</Link>
+                        <Link to="/docs/help-center" target="_blank" className="footer-link">Partnerships</Link>
                     </div>
 
                     <div style={styles.linkColumn} className="footer-link-column">
-                        <h4 style={styles.linkHeader}>Legal</h4>
+                        <h4 style={styles.linkHeader}>Compliance</h4>
                         <Link to="/docs/privacy-policy" target="_blank" className="footer-link">Privacy Policy</Link>
-                        <Link to="/docs/terms-of-service" target="_blank" className="footer-link">Terms of Service</Link>
-                        <Link to="/docs/cookie-policy" target="_blank" className="footer-link">Cookie Policy</Link>
-                        <Link to="/docs/gdpr-compliance" target="_blank" className="footer-link">GDPR Compliance</Link>
+                        <Link to="/docs/terms-of-service" target="_blank" className="footer-link">Terms of Use</Link>
+                        <Link to="/docs/cookie-policy" target="_blank" className="footer-link">Data Protection & Security</Link>
+                        <Link to="/docs/gdpr-compliance" target="_blank" className="footer-link">Accessibility Statement</Link>
                     </div>
                 </div>
 
@@ -191,7 +191,7 @@ const Footer = () => {
 
             {/* BOTTOM BAR */}
             <div style={styles.bottomBar} className="footer-bottom-bar">
-                <p style={{margin: 0, color: '#666', fontSize: '0.85rem'}}>© 2026 PULSE Smart City Initiative. All rights reserved.</p>
+                <p style={{ margin: 0, color: '#666', fontSize: '0.85rem' }}>© 2026 PULSE Smart City Initiative. All rights reserved.</p>
                 <div style={styles.socialIcons} className="footer-social-icons">
                     <a href={socialLinks.twitter} target="_blank" rel="noreferrer" className="social-btn"><FiTwitter /></a>
                     <a href={socialLinks.instagram} target="_blank" rel="noreferrer" className="social-btn"><FiInstagram /></a>
@@ -205,9 +205,9 @@ const Footer = () => {
 
 const styles = {
     footerContainer: {
-        backgroundColor: '#050509', 
+        backgroundColor: '#050509',
         color: 'white',
-        padding: '80px 60px 30px 60px', 
+        padding: '80px 60px 30px 60px',
         borderTop: '1px solid #1f2029',
         fontFamily: "'Inter', sans-serif",
     },
@@ -215,12 +215,12 @@ const styles = {
         display: 'flex',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        alignItems: 'flex-start', 
+        alignItems: 'flex-start',
         gap: '40px',
-        width: '100%', 
+        width: '100%',
     },
     brandSection: {
-        flex: '1.5', 
+        flex: '1.5',
         minWidth: '300px',
         maxWidth: '600px',
     },
@@ -229,7 +229,7 @@ const styles = {
         fontWeight: '900',
         margin: '0 0 20px 0',
         letterSpacing: '-1px',
-        color: 'white', 
+        color: 'white',
     },
     description: {
         color: '#a1a1aa',
@@ -255,16 +255,16 @@ const styles = {
     },
     linksContainer: {
         display: 'flex',
-        gap: '80px', 
+        gap: '80px',
         flex: '2',
-        justifyContent: 'flex-end', 
-        flexWrap: 'wrap', 
-        alignItems: 'flex-start', 
+        justifyContent: 'flex-end',
+        flexWrap: 'wrap',
+        alignItems: 'flex-start',
     },
     linkColumn: {
         display: 'flex',
         flexDirection: 'column',
-        minWidth: '140px', 
+        minWidth: '140px',
     },
     linkHeader: {
         fontSize: '1.1rem',

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://pulse-v2-backend.onrender.com/api/', 
+    baseURL: 'http://127.0.0.1:8000/api/', 
 });
 
 // 1. Attaches the token to every request
@@ -20,7 +20,6 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        // If the error is 401 (Unauthorized)
         if (error.response && error.response.status === 401) {
             console.log("Token expired. Logging out...");
             

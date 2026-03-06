@@ -1,11 +1,11 @@
 [data-theme='dark'] {
-  /* --- DARK MODE --- */
+  /*DARK MODE*/
   --bg-primary: #000000;
   --bg-secondary: #1c1c1e;
   --bg-card: #1c1c1e;
   --text-primary: #f5f5f7;
   --text-secondary: #86868b;
-  --accent: #0a84ff; /* Slightly lighter blue for dark mode */
+  --accent: #0a84ff; /*Slightly lighter blue for dark mode*/
   --border: #424245;
   --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
@@ -16,10 +16,10 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
-  -webkit-font-smoothing: antialiased; /* Makes fonts look crisp like Mac */
+  -webkit-font-smoothing: antialiased; /*Makes fonts look crisp like Mac*/
 }
 
-/* --- UTILITY CLASSES --- */
+/*UTILITY CLASSES*/
 .card {
   background-color: var(--bg-card);
   border: 1px solid var(--border);
@@ -45,5 +45,5 @@ body {
 
 h1, h2, h3 {
   font-weight: 600;
-  letter-spacing: -0.02em; /* Tight tracking for that modern look */
+  letter-spacing: -0.02em; /* Tight tracking for that modern look*/
 }

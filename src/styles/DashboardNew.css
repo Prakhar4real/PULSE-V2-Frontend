@@ -19,10 +19,10 @@ body {
 /*MAIN GRID LAYOUT*/
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 1fr 350px; 
+  grid-template-columns: 1fr 350px;
   gap: 20px;
   padding: 20px;
-  min-height: 100vh; 
+  min-height: 100vh;
   box-sizing: border-box;
 }
 
@@ -31,11 +31,11 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  height: fit-content; 
+  height: fit-content;
 }
 
 .map-section {
-  height: 400px; 
+  height: 400px;
   min-height: 400px;
   background: var(--card-bg);
   border-radius: 20px;
@@ -45,21 +45,14 @@ body {
 }
 
 .leaflet-container {
-    height: 100% !important;
-    width: 100% !important;
+  height: 100% !important;
+  width: 100% !important;
 }
 
-.reports-section {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  padding-bottom: 20px;
-}
-
-/* --- REPORT CARDS --- */
+/*REPORT CARDS*/
 .report-card-modern {
-  flex: 1 1 45%; 
-  min-width: 300px; 
+  flex: 1 1 45%;
+  min-width: 300px;
   background: var(--card-bg);
   border-radius: 15px;
   border: var(--glass-border);
@@ -67,7 +60,7 @@ body {
   display: flex;
   flex-direction: column;
   position: relative;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
 .report-img-modern {
@@ -89,7 +82,7 @@ body {
   color: #000;
 }
 
-/* --- RIGHT SIDEBAR --- */
+/* RIGHT SIDEBAr */
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -104,7 +97,7 @@ body {
   padding: 15px;
 }
 
-/* --- PROFILE CARD --- */
+/* PROFILE CARD */
 .profile-card-header {
   display: flex;
   align-items: center;
@@ -129,7 +122,7 @@ body {
   cursor: pointer;
 }
 
-/* --- AQI GAUGE --- */
+/* AQI GAUGE */
 .aqi-container {
   text-align: center;
   position: relative;
@@ -145,219 +138,256 @@ body {
   font-size: 0.8rem;
 }
 
-/* --- LEADERBOARD --- */
+/*LEADERBOARD */
 .leader-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.leader-rank { color: var(--accent-yellow); font-weight: bold; margin-right: 10px;}
-.leader-xp { color: var(--accent-blue); font-weight: bold; font-size: 0.9rem;}
+.leader-rank {
+  color: var(--accent-yellow);
+  font-weight: bold;
+  margin-right: 10px;
+}
 
-/* --- SCROLLBAR --- */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--bg-dark); }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+.leader-xp {
+  color: var(--accent-blue);
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+/* SCROLLBar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
 
 /* PROFESSIONAL MAP MARKER */
 .pro-pin-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
 }
 
 
 .pro-pin-core {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    border: 3px solid #ffffff; 
-    box-shadow: 0 4px 8px rgba(0,0,0,0.6); 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2;
-    box-sizing: border-box;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  box-sizing: border-box;
 }
 
 /* The small white dot in the center */
 .pro-pin-center {
-    width: 6px;
-    height: 6px;
-    background: #ffffff;
-    border-radius: 50%;
+  width: 6px;
+  height: 6px;
+  background: #ffffff;
+  border-radius: 50%;
 }
 
 
 .pro-pin-glow {
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    z-index: 1;
-    animation: pinPulse 2.5s infinite ease-out;
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  z-index: 1;
+  animation: pinPulse 2.5s infinite ease-out;
 }
 
 @keyframes pinPulse {
-    0% { transform: scale(0.5); opacity: 0.8; }
-    100% { transform: scale(1.5); opacity: 0; }
+  0% {
+    transform: scale(0.5);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
 }
 
 
 
-/* --- COMPACT DASHBOARD GRID --- */
+/*  COMPACT DASHBOARD GRID  */
 .reports-section {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  width: 100%;
 }
 
-/* --- FLIP CARD CONTAINER --- */
+/* FLIP CARD CONTAINER */
 .flip-card {
-    background-color: transparent;
-    perspective: 1000px;
-    height: 220px;
-    width: 100%;
+  background-color: transparent;
+  perspective: 1000px;
+  height: 220px;
+  width: 100%;
 }
 
-/* --- INNER WRAPPER --- */
+/*INNER WRAPPER */
 .flip-card-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    text-align: left;
-    transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
-    transform-style: preserve-3d;
-    border-radius: 12px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: left;
+  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transform-style: preserve-3d;
+  border-radius: 12px;
 }
 
 .flip-card:hover .flip-card-inner {
-    transform: rotateY(180deg);
+  transform: rotateY(180deg);
 }
 
-/* --- SHARED STYLES --- */
-.flip-card-front, .flip-card-back {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;  
-    height: 100%; 
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    border-radius: 12px;
-    overflow: hidden; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    box-sizing: border-box; 
+/*SHARED STYLES */
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
 }
 
-/* --- FRONT --- */
+/* FRONT */
 .flip-card-front {
-    background-color: #151621;
-    border: 1px solid #2a2b3d;
-    display: flex;
-    flex-direction: column;
-    z-index: 2;
+  background-color: #151621;
+  border: 1px solid #2a2b3d;
+  display: flex;
+  flex-direction: column;
+  z-index: 2;
 }
 
 /*BACK*/
 .flip-card-back {
-    background-color: #0b0c15;
-    color: #00d68f;
-    transform: rotateY(180deg);
-    border: 1px solid #00d68f;
-    box-shadow: inset 0 0 20px rgba(0, 214, 143, 0.1);
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
+  background-color: #0b0c15;
+  color: #00d68f;
+  transform: rotateY(180deg);
+  border: 1px solid #00d68f;
+  box-shadow: inset 0 0 20px rgba(0, 214, 143, 0.1);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
 }
 
-/* --- BACK CONTENT MANAGEMENT --- */
+/* BACK CONTENT MANAGEMENT  */
 .terminal-header {
-    border-bottom: 1px dashed #00d68f;
-    padding-bottom: 5px;
-    margin-bottom: 8px;
-    font-size: 0.7rem;
-    opacity: 0.7;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    flex-shrink: 0; 
+  border-bottom: 1px dashed #00d68f;
+  padding-bottom: 5px;
+  margin-bottom: 8px;
+  font-size: 0.7rem;
+  opacity: 0.7;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  flex-shrink: 0;
 }
 
 .feedback-text {
-    font-size: 0.85rem;
-    line-height: 1.4;
-    color: #e0e0e0;
-    margin: 0;
-    flex: 1;          
-    overflow-y: auto; 
-    min-height: 0;    
-    padding-right: 5px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #e0e0e0;
+  margin: 0;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding-right: 5px;
 }
 
 /* Scrollbar styling */
-.feedback-text::-webkit-scrollbar { width: 3px; }
-.feedback-text::-webkit-scrollbar-thumb { background: #00d68f; border-radius: 4px; }
+.feedback-text::-webkit-scrollbar {
+  width: 3px;
+}
+
+.feedback-text::-webkit-scrollbar-thumb {
+  background: #00d68f;
+  border-radius: 4px;
+}
 
 
 .resolved-img-preview {
-    margin-top: 10px;
-    height: 50px;      
-    width: 100%;
-    object-fit: cover; 
-    border-radius: 6px;
-    border: 1px solid #333;
-    opacity: 0.9;
-    flex-shrink: 0;    
-    cursor: pointer;
-    transition: opacity 0.2s;
+  margin-top: 10px;
+  height: 50px;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #333;
+  opacity: 0.9;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: opacity 0.2s;
 }
 
 .resolved-img-preview:hover {
-    opacity: 1;
-    border-color: #00d68f;
+  opacity: 1;
+  border-color: #00d68f;
 }
 
-/* =========================================
+/* 
    MOBILE RESPONSIVE UPDATES
    ========================================= */
 
 @media (max-width: 900px) {
-    /* 1. Stack the layout vertically */
-    .dashboard-grid {
-        grid-template-columns: 1fr !important;
-        padding: 10px;
-        gap: 24px;
-        height: auto; /* Allow scrolling */
-        min-height: auto;
-    }
 
-    /* 2. Adjust Map Size for Phones */
-    .map-section {
-        height: 60vh !important; 
-        min-height: 300px;
-    }
+  /* 1. Stack the layout vertically */
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+    padding: 10px;
+    gap: 24px;
+    height: auto;
+    /* Allow scrolling */
+    min-height: auto;
+  }
 
-    /* 3. Push Sidebar to the bottom */
-    .sidebar {
-        order: 2; 
-        width: 100%;
-    }
+  /* 2. Adjust Map Size for Phones */
+  .map-section {
+    height: 60vh !important;
+    min-height: 300px;
+  }
 
-    /* 4. Making cards full width */
-    .report-card-modern, 
-    .flip-card {
-        min-width: 100%; /* Full width on phone */
-        width: 100%;
-    }
+  /* 3. Push Sidebar to the bottom */
+  .sidebar {
+    order: 2;
+    width: 100%;
+  }
 
-    /* 5. Adjust grids to be single column */
-    .reports-section {
-        grid-template-columns: 1fr !important;
-        display: grid; /* Ensure grid behavior */
-    }
+  /* 4. Making cards full width */
+  .report-card-modern,
+  .flip-card {
+    min-width: 100%;
+    /* Full width on phone */
+    width: 100%;
+  }
+
+  /* 5. Adjust grids to be single column */
+  .reports-section {
+    grid-template-columns: 1fr !important;
+    display: grid;
+    /* Ensure grid behavior */
+  }
 }

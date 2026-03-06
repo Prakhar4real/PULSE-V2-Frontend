@@ -7,7 +7,6 @@ import L from 'leaflet';
 import { FiCamera, FiRefreshCw } from 'react-icons/fi';
 
 //1. SETUP RED INCIDENT PIN
-
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
@@ -35,10 +34,10 @@ const IncidentPin = ({ position, setPosition, setAddress }) => {
     });
 
     return (
-        <Marker 
-            draggable={true} 
-            eventHandlers={eventHandlers} 
-            position={position} 
+        <Marker
+            draggable={true}
+            eventHandlers={eventHandlers}
+            position={position}
             ref={markerRef}
             icon={RedIcon}
         >
@@ -48,13 +47,12 @@ const IncidentPin = ({ position, setPosition, setAddress }) => {
 };
 
 // 3. BLUE DOT
-// using CircleMarker because it is SVG-based and CANNOT fail to load like an image.
 const UserLocationDot = ({ userLocation }) => {
     const map = useMap();
-    
+
     useEffect(() => {
         if (userLocation) {
-            map.setView(userLocation, 16); 
+            map.setView(userLocation, 16);
         }
     }, [userLocation, map]);
 
@@ -62,17 +60,15 @@ const UserLocationDot = ({ userLocation }) => {
 
     return (
         <>
-            {/* Outer Glow Ring */}
-            <CircleMarker 
-                center={userLocation} 
-                radius={20} 
-                pathOptions={{ color: 'transparent', fillColor: '#2970ff', fillOpacity: 0.2 }} 
+            <CircleMarker
+                center={userLocation}
+                radius={20}
+                pathOptions={{ color: 'transparent', fillColor: '#2970ff', fillOpacity: 0.2 }}
             />
-            {/* Inner Solid Dot */}
-            <CircleMarker 
-                center={userLocation} 
-                radius={8} 
-                pathOptions={{ color: 'white', weight: 2, fillColor: '#2970ff', fillOpacity: 1 }} 
+            <CircleMarker
+                center={userLocation}
+                radius={8}
+                pathOptions={{ color: 'white', weight: 2, fillColor: '#2970ff', fillOpacity: 1 }}
             >
                 <Popup>You are here</Popup>
             </CircleMarker>
@@ -82,17 +78,17 @@ const UserLocationDot = ({ userLocation }) => {
 
 const NewReport = () => {
     const navigate = useNavigate();
-    
+
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('Pothole');
     const [image, setImage] = useState(null);
     const [loading, setLoading] = useState(false);
-    
+
     // Location State
     const [gpsStatus, setGpsStatus] = useState("Waiting for GPS...");
-    const [position, setPosition] = useState({ lat: 26.8467, lng: 80.9462 }); 
-    const [userLocation, setUserLocation] = useState(null); 
+    const [position, setPosition] = useState({ lat: 26.8467, lng: 80.9462 });
+    const [userLocation, setUserLocation] = useState(null);
     const [address, setAddress] = useState('');
 
     const getLocation = () => {
@@ -106,16 +102,12 @@ const NewReport = () => {
             (pos) => {
                 const { latitude, longitude } = pos.coords;
                 const userPos = { lat: latitude, lng: longitude };
-                
-                // 1. Set User Location (Blue Dot)
-                setUserLocation(userPos); 
-                
-                // 2. Set Incident Pin (Red Pin) - Starts at user location
-                setPosition(userPos);     
-                
+
+                setUserLocation(userPos);
+                setPosition(userPos);
                 setAddress(`${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
                 setGpsStatus(`Locked`);
-            }, 
+            },
             (err) => {
                 console.error("GPS Error:", err);
                 setGpsStatus("GPS Failed");
@@ -128,6 +120,21 @@ const NewReport = () => {
     useEffect(() => {
         getLocation();
     }, []);
+
+    // 5MB File Size Handler
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+        if (file.size > MAX_FILE_SIZE) {
+            alert("Image is too large! Please upload a photo smaller than 5MB.");
+            e.target.value = null; // Resets the input so they can try again
+            return;
+        }
+
+        setImage(file);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -160,74 +167,76 @@ const NewReport = () => {
     return (
         <div style={styles.container}>
             <div style={styles.card}>
-                <h2 style={{textAlign: 'center', marginBottom: '20px', color: 'white'}}>Report Incident</h2>
-                
+                <h2 style={{ textAlign: 'center', marginBottom: '20px', color: 'white' }}>Report Incident</h2>
+
                 <form onSubmit={handleSubmit} style={styles.form}>
                     <div style={styles.group}>
                         <label style={styles.label}>Title</label>
-                        <input 
-                            type="text" 
-                            value={title} 
-                            onChange={(e) => setTitle(e.target.value)} 
+                        <input
+                            type="text"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
                             placeholder="e.g. Deep Pothole"
                             style={styles.input}
-                            required 
+                            required
+                            disabled={loading}
                         />
                     </div>
 
                     {/* MAP SECTION */}
                     <div style={styles.group}>
-                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <label style={styles.label}>Location</label>
-                            <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
-                                <span style={{fontSize: '0.8rem', color: userLocation ? '#00d68f' : '#ffb547'}}>
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                <span style={{ fontSize: '0.8rem', color: userLocation ? '#00d68f' : '#ffb547' }}>
                                     {gpsStatus}
                                 </span>
-                                <button type="button" onClick={getLocation} style={styles.retryBtn}>
+                                <button type="button" onClick={getLocation} style={styles.retryBtn} disabled={loading}>
                                     <FiRefreshCw />
                                 </button>
                             </div>
                         </div>
-                        
+
                         <div style={styles.mapContainer}>
                             <MapContainer center={position} zoom={15} style={{ height: '100%', width: '100%' }}>
                                 <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
-                                
-                                {/* BLUE DOT (Code Generated) */}
                                 <UserLocationDot userLocation={userLocation} />
-                                
-                                {/* RED PIN (Image) */}
                                 <IncidentPin position={position} setPosition={setPosition} setAddress={setAddress} />
-                            
                             </MapContainer>
                         </div>
-                        <p style={{color: '#00d68f', fontSize: '0.8rem', marginTop: '5px'}}>
+                        <p style={{ color: '#00d68f', fontSize: '0.8rem', marginTop: '5px' }}>
                             Selected: {position.lat.toFixed(5)}, {position.lng.toFixed(5)}
                         </p>
                     </div>
 
                     <div style={styles.group}>
                         <label style={styles.label}>Description</label>
-                        <textarea 
+                        <textarea
                             rows="3"
-                            value={description} 
-                            onChange={(e) => setDescription(e.target.value)} 
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
                             style={styles.input}
                             placeholder="Describe the issue..."
+                            disabled={loading}
                         />
                     </div>
 
+                    {/* EVIDENCE UPLOAD SECTION */}
                     <div style={styles.group}>
                         <label style={styles.label}><FiCamera /> Evidence</label>
-                        <input 
-                            type="file" 
-                            onChange={(e) => setImage(e.target.files[0])} 
+                        <input
+                            type="file"
+                            onChange={handleImageChange}
                             accept="image/*"
-                            style={{color: '#aaa'}}
+                            style={{ color: '#aaa' }}
+                            disabled={loading}
                         />
+                        <span style={{ fontSize: '0.75rem', color: '#8b8d9d', marginTop: '4px' }}>
+                            Max file size: 5MB (JPG/PNG)
+                        </span>
                     </div>
 
-                    <button type="submit" style={styles.submitBtn} disabled={loading}>
+                    <button type="submit" style={{ ...styles.submitBtn, opacity: loading ? 0.7 : 1 }} disabled={loading}>
                         {loading ? 'Submitting...' : 'Submit Report'}
                     </button>
                 </form>

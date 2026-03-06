@@ -10,7 +10,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { FiWind, FiSun, FiMapPin, FiUser, FiCrosshair, FiClock, FiExternalLink } from 'react-icons/fi'; 
 import '../styles/DashboardNew.css';
 
-// --- HELPER FUNCTIONS ---
+// HELPER FUNCTIONS
 const getUserIdFromToken = () => {
     const token = localStorage.getItem('access');
     if (!token) return null;
@@ -46,7 +46,7 @@ const shouldShowMarker = (report) => {
     return diffInHours < 12;
 };
 
-// --- MAP COMPONENTS ---
+// MAP COMPONENTS 
 
 const RecenterMap = ({ center }) => {
     const map = useMap();
@@ -241,7 +241,7 @@ const Dashboard = () => {
                 <div style={{
                     backgroundColor: '#151621',
                     border: '1px solid #2970ff',
-                    padding: '12px 16px',
+                    padding: '10px 10px',
                     borderRadius: '8px',
                     color: 'white',
                     fontWeight: 'bold',
@@ -313,26 +313,27 @@ const Dashboard = () => {
 
                 
                 <div>
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px'}}>
+                   <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px'}}>
                         <h3 style={{color: '#8b8d9d', margin: 0}}>My Recent Reports</h3>
                         <span style={{color: '#2970ff', cursor: 'pointer', fontSize: '0.9rem'}} onClick={() => navigate('/history')}>View Full History →</span>
                     </div>
                     
                     {recentReports.length > 0 ? (
                         <div className="reports-section">
-                            {recentReports.map((report) => {
+                            {/* limit to 4 reports max */}
+                            {recentReports.slice(0, 4).map((report) => {
                                 const hasCoords = parseCoords(report) !== null;
                                 return (
                                     <div key={report.id} className="flip-card">
                                         <div className="flip-card-inner">
-                                            {/* --- FRONT OF CARD --- */}
+                                            {/* FRONT OF CARD */}
                                             <div className="flip-card-front">
-                                                <div className="status-tag" style={{backgroundColor: getStatusColor(report.status), zIndex: 2}}>
+                                                <div className="status-tag" style={{backgroundColor: getStatusColor(report.status), zIndex: 3}}>
                                                     {report.status}
                                                 </div>
 
                                                 <div style={{
-                                                    position: 'absolute', top: 10, left: 10, zIndex: 2, 
+                                                    position: 'absolute', top: 10, left: 10, zIndex: 3, 
                                                     backgroundColor: 'rgba(0,0,0,0.6)', padding: '2px 8px', borderRadius: '4px',
                                                     fontSize: '0.65rem', color: '#fff', border: '1px solid rgba(255,255,255,0.2)',
                                                     backdropFilter: 'blur(4px)'
@@ -340,12 +341,28 @@ const Dashboard = () => {
                                                     {generateCaseId(report.id)}
                                                 </div>
                                                 
-                                                <div style={{height: '120px', overflow: 'hidden', borderBottom: '1px solid #2a2b3d', position:'relative'}}>
-                                                    <img 
-                                                        src={getImageUrl(report.image)} 
-                                                        alt="Report" 
-                                                        style={{width: '100%', height: '100%', objectFit: 'cover'}}
-                                                    />
+                                                {/* Elegant Image Fallback container */}
+                                                <div style={{
+                                                    height: '120px', overflow: 'hidden', borderBottom: '1px solid #2a2b3d', 
+                                                    position:'relative', backgroundColor: '#151621', 
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                                }}>
+                                                    {/* Fallback text sits underneath the image */}
+                                                    <span style={{ position: 'absolute', color: '#8b8d9d', fontSize: '0.85rem', zIndex: 1 }}>
+                                                        No Image Provided
+                                                    </span>
+                                                    
+                                                    {/* The actual image sits on top. If it breaks, it hides itself */}
+                                                    {report.image && (
+                                                        <img 
+                                                            src={getImageUrl(report.image)} 
+                                                            alt="Report" 
+                                                            style={{width: '100%', height: '100%', objectFit: 'cover', position: 'relative', zIndex: 2}}
+                                                            onError={(e) => {
+                                                                e.target.style.display = 'none'; 
+                                                            }}
+                                                        />
+                                                    )}
                                                 </div>
 
                                                 <div style={{padding: '15px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
@@ -363,10 +380,10 @@ const Dashboard = () => {
                                                 )}
                                             </div>
 
-                                            {/* --- BACK OF CARD --- */}
+                                            {/* BACK OF CARD */}
                                             <div className="flip-card-back">
                                                 <div className="terminal-header">
-                                                    // {generateCaseId(report.id)}
+                                                    {/* {generateCaseId(report.id)} */}
                                                 </div>
                                                 
                                                 {report.feedback ? (
@@ -512,7 +529,7 @@ const Dashboard = () => {
                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                     ))}
                                 </Pie>
-                                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} position={{ x: 170, y: 50 }} />
+                                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} position={{ x: 210, y: 5 }} />
                             </PieChart>
                         </ResponsiveContainer>
                         

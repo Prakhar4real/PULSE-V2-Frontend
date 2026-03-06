@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import Footer from '../components/Footer'; 
+import Footer from '../components/Footer';
 
 const Leaderboard = () => {
     const [leaders, setLeaders] = useState([]);
-    const [loading, setLoading] = useState(true); 
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchLeaderboard = async () => {
             // 1. Get the token from storage
             const token = localStorage.getItem("access_token");
-            
+
             try {
                 // 2. Send the token in the headers 
                 const res = await axios.get("https://pulse-v2-backend.onrender.com/api/leaderboard/", {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                
-                console.log("Leaderboard Data:", res.data); 
+
+                console.log("Leaderboard Data:", res.data);
                 setLeaders(res.data);
             } catch (error) {
                 console.error("Error loading leaderboard:", error);
@@ -40,7 +40,7 @@ const Leaderboard = () => {
 
     return (
         <div style={styles.container}>
-            
+
             {/* Header with Back Button */}
             <div style={styles.header}>
                 <button onClick={() => navigate('/dashboard')} style={styles.backBtn}>
@@ -52,26 +52,26 @@ const Leaderboard = () => {
 
             {/* The List */}
             <div style={styles.listContainer}>
-                
+
                 {/* 3. Logic: Check Loading First */}
                 {loading ? (
-                    <p style={{textAlign: 'center', color: '#888'}}>Loading rankings...</p>
+                    <p style={{ textAlign: 'center', color: '#888' }}>Loading rankings...</p>
                 ) : leaders.length === 0 ? (
-                    <div style={{textAlign: 'center', color: '#666', marginTop: '50px'}}>
+                    <div style={{ textAlign: 'center', color: '#666', marginTop: '50px' }}>
                         <h3>No Data Found</h3>
                         <p>No active users found in the database yet.</p>
                     </div>
                 ) : (
                     leaders.map((user) => (
                         <div key={user.rank} style={{
-                            ...styles.row, 
+                            ...styles.row,
                             border: user.rank === 1 ? '2px solid #ffd700' : '1px solid #333',
                             backgroundColor: user.rank === 1 ? 'rgba(255, 215, 0, 0.1)' : 'var(--bg-secondary, #1e1e1e)'
                         }}>
-                            
+
                             {/* Rank Column */}
                             <div style={styles.rankCol}>
-                                <span style={{fontSize: '1.5rem'}}>{getRankIcon(user.rank)}</span>
+                                <span style={{ fontSize: '1.5rem' }}>{getRankIcon(user.rank)}</span>
                             </div>
 
                             {/* User Info */}

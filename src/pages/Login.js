@@ -4,21 +4,25 @@ import api from '../services/api';
 
 const Login = () => {
     const [formData, setFormData] = useState({ username: '', password: '' });
-    
+    const [isLoading, setIsLoading] = useState(false); //NEW STATE
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true); //TURN ON LOADER
         try {
             const res = await api.post('token/', formData);
             localStorage.setItem('access', res.data.access);
             localStorage.setItem('refresh', res.data.refresh);
-            window.location.href = '/dashboard'; 
+            window.location.href = '/dashboard';
         } catch (error) {
             console.error("Login Error", error);
             alert("Invalid Credentials. Please try again.");
+        } finally {
+            setIsLoading(false); //TURN OFF LOADER
         }
     };
 
@@ -92,38 +96,47 @@ const Login = () => {
             `}</style>
 
             <div className="login-card">
-                <h2 className="login-title" style={{textAlign: 'center', marginBottom: '30px', fontWeight:'800'}}>Welcome Back</h2>
-                
+                <h2 className="login-title" style={{ textAlign: 'center', marginBottom: '30px', fontWeight: '800' }}>Welcome Back</h2>
+
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label style={{color: '#8b8d9d', fontSize:'0.9rem'}}>Username</label>
-                        <input 
-                            name="username" 
-                            type="text" 
-                            placeholder="Enter username" 
-                            onChange={handleChange} 
-                            className="login-input" 
-                            required 
+                        <label style={{ color: '#8b8d9d', fontSize: '0.9rem' }}>Username</label>
+                        <input
+                            name="username"
+                            type="text"
+                            placeholder="Enter username"
+                            onChange={handleChange}
+                            className="login-input"
+                            required
+                            disabled={isLoading}
                         />
                     </div>
 
                     <div className="form-group">
-                        <label style={{color: '#8b8d9d', fontSize:'0.9rem'}}>Password</label>
-                        <input 
-                            name="password" 
-                            type="password" 
-                            placeholder="Enter password" 
-                            onChange={handleChange} 
-                            className="login-input" 
-                            required 
+                        <label style={{ color: '#8b8d9d', fontSize: '0.9rem' }}>Password</label>
+                        <input
+                            name="password"
+                            type="password"
+                            placeholder="Enter password"
+                            onChange={handleChange}
+                            className="login-input"
+                            required
+                            disabled={isLoading}
                         />
                     </div>
 
-                    <button type="submit" className="login-btn">Log In</button>
+                    {/*SMART BUTTON */}
+                    {isLoading ? (
+                        <button type="button" className="login-btn" style={{ opacity: 0.7, cursor: 'not-allowed' }} disabled>
+                            <span className="pulse-loader"></span> Logging In...
+                        </button>
+                    ) : (
+                        <button type="submit" className="login-btn">Log In</button>
+                    )}
                 </form>
 
-                <p style={{marginTop: '25px', textAlign: 'center', color: '#888', fontSize:'0.9rem'}}>
-                    New to PULSE? <Link to="/register" style={{color: '#2970ff', fontWeight:'bold', textDecoration:'none'}}>Create an Account</Link>
+                <p style={{ marginTop: '25px', textAlign: 'center', color: '#888', fontSize: '0.9rem' }}>
+                    New to PULSE? <Link to="/register" style={{ color: '#2970ff', fontWeight: 'bold', textDecoration: 'none' }}>Create an Account</Link>
                 </p>
             </div>
         </div>

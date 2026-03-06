@@ -5,16 +5,18 @@ import { useNavigate, Link } from "react-router-dom";
 function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState(""); 
+  const [phone, setPhone] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // NEW STATE
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true); // TURN ON LOADER
     try {
-      const payload = { 
-          username, 
-          password, 
-          phone_number: phone.trim() === "" ? null : phone 
+      const payload = {
+        username,
+        password,
+        phone_number: phone.trim() === "" ? null : phone
       };
 
       await api.post("user/register/", payload);
@@ -22,6 +24,8 @@ function Register() {
       navigate("/login");
     } catch (error) {
       alert("Registration failed. Try a different username.");
+    } finally {
+      setIsLoading(false); // TURN OFF LOADER
     }
   };
 
@@ -100,7 +104,7 @@ function Register() {
       <div className="auth-card">
         <h2 className="auth-title">Join PULSE</h2>
         <p className="auth-subtitle">Become a verified citizen.</p>
-        
+
         <form onSubmit={handleSubmit} className="auth-form">
           <input
             type="text"
@@ -109,15 +113,17 @@ function Register() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
+            disabled={isLoading}
           />
-          
-          <div className="phone-input-group" style={{textAlign:'left'}}>
+
+          <div className="phone-input-group" style={{ textAlign: 'left' }}>
             <input
               type="text"
               className="auth-input"
               placeholder="Phone (Optional)"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              disabled={isLoading}
             />
             <small style={{ color: "#666", fontSize: "0.75rem", display: "block", marginTop: "5px", paddingLeft: "5px" }}>
               *SMS alerts active for Verified Testers only.
@@ -131,9 +137,17 @@ function Register() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            disabled={isLoading}
           />
-          
-          <button type="submit" className="auth-button">Create Account</button>
+
+          {/* SMART BUTTON */}
+          {isLoading ? (
+            <button type="button" className="auth-button" style={{ opacity: 0.7, cursor: 'not-allowed' }} disabled>
+              <span className="pulse-loader"></span> Creating Account...
+            </button>
+          ) : (
+            <button type="submit" className="auth-button">Create Account</button>
+          )}
         </form>
 
         <p className="auth-footer">
