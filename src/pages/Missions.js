@@ -110,11 +110,10 @@ const Missions = () => {
         try {
             const token = localStorage.getItem('access');
             await api.post(`missions/${missionId}/join/`, {}, { headers: { Authorization: `Bearer ${token}` } });
-            alert("Mission Started! Good luck.");
             fetchGamificationData();
-        } catch (error) { alert("Could not join mission."); }
-        finally {
-            // Turn OFF the loader
+        } catch (error) { 
+            alert("Could not start mission."); 
+        } finally {
             setJoiningId(null);
         }
     };
@@ -135,11 +134,33 @@ const Missions = () => {
         try {
             const token = localStorage.getItem('access');
             const response = await api.post(`missions/${missionId}/submit_proof/`, formData, { headers: { Authorization: `Bearer ${token}` } });
-            alert(response.data.message);
-            fetchGamificationData();
+            const data = response.data;
+
+            // DYNAMIC POPUPS BASED ON AI GRADING
+            if (data.status === 'verified') {
+                alert(`🎉VERIFIED!\n\n${data.message}`);
+                fetchGamificationData(); // Refresh to update XP and button to "START AGAIN"
+            } 
+            else if (data.status === 'failed') {
+                alert(`REJECTED:\n\n${data.message}`);
+                fetchGamificationData(); // Refresh to update button to "TRY AGAIN"
+            } 
+            else if (data.status === 'pending') {
+                alert(`AI BUSY:\n\n${data.message}`);
+                
+                // Manually lock the UI to "Pending Review" so they don't spam uploads
+                setMissions(prevMissions => 
+                    prevMissions.map(m => m.id === missionId ? { ...m, status: 'under_review' } : m)
+                );
+            } 
+            else {
+                alert(data.message);
+                fetchGamificationData();
+            }
+
         } catch (error) {
             const errorMessage = error.response?.data?.error || error.response?.data?.message || "Upload failed. Please try again.";
-            alert(errorMessage);
+            alert(`Error: ${errorMessage}`);
         } finally {
             setUploadingId(null);
         }
@@ -182,7 +203,10 @@ const Missions = () => {
                 </div>
 
                 <div style={styles.panel}>
-                    <h2 style={{ borderBottom: '1px solid #333', paddingBottom: '10px', marginTop: 0 }}>Active Missions</h2>
+                    <div style={{ borderBottom: '1px solid #333', paddingBottom: '10px', marginBottom: '15px' }}>
+                        <h2 style={{ margin: 0 }}>Active Missions</h2>
+                        <p style={{ fontSize: '0.8rem', color: '#8b8d9d', margin: '5px 0 0 0' }}>Image upload limit: Max 5MB</p>
+                    </div>
                     {loading ? <p>Loading missions...</p> : (
                         <div style={styles.missionGrid}>
                             {missions.map((mission) => (
@@ -193,51 +217,60 @@ const Missions = () => {
                                         <p style={{ fontSize: '0.8rem', color: '#aaa', margin: 0 }}>{mission.description}</p>
                                     </div>
                                     <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                                        <div style={{ color: '#ffd700', fontWeight: 'bold', marginBottom: '8px' }}>+{mission.points} XP</div>
+                                       <div style={{ color: '#ffd700', fontWeight: 'bold', marginBottom: '8px' }}>+{mission.points} XP</div>
 
-                                        {mission.status === 'available' && (
+                                        {/* 1. UPLOADING LOADER */}
+                                        {uploadingId === mission.id ? (
+                                            <button style={{ ...styles.btnStart, opacity: 0.7, cursor: 'not-allowed', backgroundColor: '#ffb547', color: '#0b0c15' }} disabled>
+                                                <span className="pulse-loader" style={{ width: '12px', height: '12px', borderWidth: '2px', marginRight: '6px', display: 'inline-block' }}></span>
+                                                AI is analyzing...
+                                            </button>
+                                        ) : 
+
+                                        /* 2. AI FAILED -> QUEUED FOR HUMAN REVIEW */
+                                        mission.status === 'under_review' ? (
+                                            <button style={{ ...styles.btnStart, backgroundColor: '#8b8d9d', cursor: 'not-allowed' }} disabled>
+                                                PENDING REVIEW
+                                            </button>
+                                        ) : 
+
+                                        /* 3. ALREADY JOINED -> READY TO UPLOAD (Pending, Completed, or Rejected) */
+                                        (mission.status === 'pending' || mission.status === 'completed' || mission.status === 'rejected') ? (
+                                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                                                <label style={{ 
+                                                    ...styles.btnUpload, 
+                                                    // Blue for completed, Red for rejected, Yellow for first-time upload
+                                                    backgroundColor: mission.status === 'completed' ? '#2970ff' : (mission.status === 'rejected' ? '#ff4d4d' : '#ffb547'), 
+                                                    color: mission.status === 'pending' ? '#0b0c15' : 'white', 
+                                                    cursor: 'pointer',
+                                                    textAlign: 'center'
+                                                }}>
+                                                    {mission.status === 'completed' ? 'UPLOAD NEW PROOF' : mission.status === 'rejected' ? 'TRY AGAIN' : 'UPLOAD PROOF'}
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        style={{ display: 'none' }}
+                                                        onChange={(e) => handleSubmitProof(mission.id, e.target.files[0])}
+                                                        disabled={uploadingId !== null}
+                                                    />
+                                                </label>
+                                            </div>
+                                        ) : 
+
+                                        /* 4. NOT JOINED YET -> SHOW "START" */
+                                        (
                                             joiningId === mission.id ? (
-                                                // SHOW THIS WHEN LOADING
                                                 <button style={{ ...styles.btnStart, opacity: 0.7, cursor: 'not-allowed' }} disabled>
-                                                    <span className="pulse-loader" style={{ width: '12px', height: '12px', borderWidth: '2px', marginRight: '6px', display: 'inline-block' }}></span>
                                                     Starting...
                                                 </button>
                                             ) : (
-                                                // SHOW THIS NORMALLY
-                                                <button onClick={() => handleJoinMission(mission.id)} style={styles.btnStart}>
+                                                <button 
+                                                    onClick={() => handleJoinMission(mission.id)} 
+                                                    style={{ ...styles.btnStart, backgroundColor: '#28a745' }}
+                                                >
                                                     START
                                                 </button>
                                             )
-                                        )}
-
-                                        {/*Allows infinite uploads even if completed */}
-                                        {(mission.status === 'pending' || mission.status === 'completed') && (
-                                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-
-                                                {mission.status === 'completed' && (
-                                                    <span style={{ ...styles.badgeDone, marginBottom: '8px' }}>✅ COMPLETED</span>
-                                                )}
-
-                                                {uploadingId === mission.id ? (
-                                                    <button style={{ ...styles.btnUpload, opacity: 0.7, cursor: 'not-allowed' }} disabled>
-                                                        <span className="pulse-loader"></span>AI is analyzing...
-                                                    </button>
-                                                ) : (
-                                                    <label style={{ ...styles.btnUpload, backgroundColor: mission.status === 'completed' ? '#2970ff' : '#ffb547', color: mission.status === 'completed' ? 'white' : '#0b0c15' }}>
-                                                        {mission.status === 'completed' ? '📷 Upload More Proof' : '📷 Upload Proof'}
-                                                        <input
-                                                            type="file"
-                                                            accept="image/*"
-                                                            style={{ display: 'none' }}
-                                                            onChange={(e) => handleSubmitProof(mission.id, e.target.files[0])}
-                                                            disabled={uploadingId !== null}
-                                                        />
-                                                    </label>
-                                                )}
-                                                <span style={{ fontSize: '0.7rem', color: '#8b8d9d', marginTop: '6px' }}>
-                                                    Max size: 5MB
-                                                </span>
-                                            </div>
                                         )}
                                     </div>
                                 </div>
@@ -262,7 +295,6 @@ const styles = {
     listItem: { display: 'flex', alignItems: 'center', padding: '15px 10px', borderBottom: '1px solid #2a2b3d' },
     missionGrid: { display: 'flex', flexDirection: 'column', gap: '15px' },
     missionCard: { display: 'flex', alignItems: 'center', backgroundColor: '#1f2029', padding: '15px', borderRadius: '12px', border: '1px solid #2a2b3d' },
-    badgeDone: { fontSize: '0.7rem', backgroundColor: '#00d68f', color: '#0b0c15', padding: '5px 10px', borderRadius: '6px', fontWeight: 'bold' },
     btnStart: { backgroundColor: '#2970ff', color: 'white', border: 'none', padding: '8px 15px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.75rem' },
     btnUpload: { border: 'none', padding: '8px 15px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.75rem', display: 'inline-block' },
 };
